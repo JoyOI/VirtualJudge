@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\JoyOI.VirtualJudge.Common\JoyOI.VirtualJudge.Common.csproj" />
+    <ProjectReference Include="..\Shared\JoyOI.VirtualJudge.Common\JoyOI.VirtualJudge.Common.csproj" />
   </ItemGroup>
 
 </Project>

@@ -14,6 +14,8 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         private HttpClient client;
         private const string baseUrl = "http://www.lydsy.com";
         private const string problemEndpoint = "/JudgeOnline/problem.php?id=";
+        private Dictionary<Guid, string> imageDictionary = new Dictionary<Guid, string>();
+        private List<string> returnFiles = new List<string>(50) { "problemset.json", "image.json" };
 
         public void Main()
         {
@@ -28,7 +30,8 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             try
             {
                 File.WriteAllText("problem.json", JsonConvert.SerializeObject(await GetProblemBodyAsync(problemId)));
-                File.WriteAllText("return.json", JsonConvert.SerializeObject(new[] { "problemset.json" }));
+                File.WriteAllText("image.json", JsonConvert.SerializeObject(imageDictionary));
+                File.WriteAllText("return.json", JsonConvert.SerializeObject(returnFiles));
             }
             catch (Exception ex)
             {
