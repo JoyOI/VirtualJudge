@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json;
 
-namespace JoyOI.VirtualJudge.Bzoj.ManagementService
+namespace JoyOI.VirtualJudge.Bzoj.Actor
 {
     public class VirtualJudgeMetadata
     {
