@@ -52,8 +52,8 @@ namespace JoyOI.VirtualJudge.Bzoj.ManagementService
         {
             var metadata = JsonConvert.DeserializeObject<VirtualJudgeMetadata>(File.ReadAllText("metadata.json"));
             statusEndpoint += metadata.Username;
-
             client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
+            MainAsync(metadata).Wait();
         }
 
         private async Task MainAsync(VirtualJudgeMetadata metadata)
