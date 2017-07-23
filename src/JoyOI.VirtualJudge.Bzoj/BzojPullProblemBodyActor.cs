@@ -56,5 +56,21 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// 生成一个GUID表示被下载的图片ID
+        /// </summary>
+        /// <param name="relativeUrl"></param>
+        /// <returns>返回图片ID后，需要将Body中的图片URL改为/File/Download/[GUID]</returns>
+        private async Task<Guid> DownloadImageAsync(string relativeUrl)
+        {
+            var guid = Guid.NewGuid();
+            var response = await client.GetAsync(relativeUrl);
+            var bytes = await response.Content.ReadAsByteArrayAsync();
+            var filename = guid + Path.GetExtension(relativeUrl);
+            File.WriteAllBytes(filename, bytes);
+            returnFiles.Add(filename);
+            return guid;
+        }
     }
 }
