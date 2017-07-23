@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26711.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bzoj", "Bzoj", "{5CFC2B68-156D-4862-98AC-B8DECCC3B27A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.Common", "src\Shared\JoyOI.VirtualJudge.Common\JoyOI.VirtualJudge.Common.csproj", "{7A118DF2-6EA2-4A4C-B62F-2B1BA027E6AC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{F548A04C-45C1-4C16-B2E7-5CA64C5ED394}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.StateMachine", "src\Shared\JoyOI.VirtualJudge.StateMachine\JoyOI.VirtualJudge.StateMachine.csproj", "{B00BEDEB-786D-4E27-B004-F8DE38BECE96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.Common", "Shared\JoyOI.VirtualJudge.Common\JoyOI.VirtualJudge.Common.csproj", "{7A118DF2-6EA2-4A4C-B62F-2B1BA027E6AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.Bzoj", "src\JoyOI.VirtualJudge.Bzoj\JoyOI.VirtualJudge.Bzoj.csproj", "{019FC75E-D3DF-4233-8ABD-2C09FEA878B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.StateMachine", "Shared\JoyOI.VirtualJudge.StateMachine\JoyOI.VirtualJudge.StateMachine.csproj", "{B00BEDEB-786D-4E27-B004-F8DE38BECE96}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.Bzoj.Actor", "Bzoj\JoyOI.VirtualJudge.Bzoj.Actor\JoyOI.VirtualJudge.Bzoj.Actor.csproj", "{3A3ACA09-DCC1-4E5D-8760-12A62AFFE25E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{66D065B1-F8AF-450B-BC89-7873DCD9CC92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,18 +27,19 @@ Global
 		{B00BEDEB-786D-4E27-B004-F8DE38BECE96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B00BEDEB-786D-4E27-B004-F8DE38BECE96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B00BEDEB-786D-4E27-B004-F8DE38BECE96}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3A3ACA09-DCC1-4E5D-8760-12A62AFFE25E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A3ACA09-DCC1-4E5D-8760-12A62AFFE25E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A3ACA09-DCC1-4E5D-8760-12A62AFFE25E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A3ACA09-DCC1-4E5D-8760-12A62AFFE25E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{019FC75E-D3DF-4233-8ABD-2C09FEA878B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{019FC75E-D3DF-4233-8ABD-2C09FEA878B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{019FC75E-D3DF-4233-8ABD-2C09FEA878B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{019FC75E-D3DF-4233-8ABD-2C09FEA878B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7A118DF2-6EA2-4A4C-B62F-2B1BA027E6AC} = {F548A04C-45C1-4C16-B2E7-5CA64C5ED394}
-		{B00BEDEB-786D-4E27-B004-F8DE38BECE96} = {F548A04C-45C1-4C16-B2E7-5CA64C5ED394}
-		{3A3ACA09-DCC1-4E5D-8760-12A62AFFE25E} = {5CFC2B68-156D-4862-98AC-B8DECCC3B27A}
+		{7A118DF2-6EA2-4A4C-B62F-2B1BA027E6AC} = {66D065B1-F8AF-450B-BC89-7873DCD9CC92}
+		{B00BEDEB-786D-4E27-B004-F8DE38BECE96} = {66D065B1-F8AF-450B-BC89-7873DCD9CC92}
+		{019FC75E-D3DF-4233-8ABD-2C09FEA878B2} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
+		{66D065B1-F8AF-450B-BC89-7873DCD9CC92} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EFA28B29-A1A6-4F01-88DA-3ABAD9117FEE}
