@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace JoyOI.VirtualJudge.Common
+namespace JoyOI.VirtualJudge
 {
     public class ProblemJson
     {
