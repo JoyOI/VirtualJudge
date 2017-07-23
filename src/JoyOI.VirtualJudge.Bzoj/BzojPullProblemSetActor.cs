@@ -11,16 +11,15 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
 {
     public class BzojPullProblemSetActor
     {
-        private HttpClient client;
         private const string baseUrl = "http://www.lydsy.com";
         private const string problemsetEndpoint = "/JudgeOnline/problemset.php?page={PAGE}";
         private Regex ProblemIdRegex = new Regex("(?<=<a href='problem.php\\?id=)[0-9]{4,6}(?='>)");
         private Regex PageIndexRegex = new Regex("(?<=<a href='problemset.php\\?page=)[0-9]{1,}(?='>[0-9]{1,}</a>)");
         private int page = 1;
+        private HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
 
         public void Main()
         {
-            client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
             MainAsync().Wait();
         }
 

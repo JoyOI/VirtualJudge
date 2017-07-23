@@ -11,15 +11,14 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
 {
     public class BzojPullProblemBodyActor
     {
-        private HttpClient client;
         private const string baseUrl = "http://www.lydsy.com";
         private const string problemEndpoint = "/JudgeOnline/problem.php?id=";
         private Dictionary<Guid, string> imageDictionary = new Dictionary<Guid, string>();
         private List<string> returnFiles = new List<string>(50) { "problemset.json", "image.json" };
+        private HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
 
         public void Main()
         {
-            client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
             MainAsync(Convert.ToInt32(File.ReadAllText("id.txt"))).Wait();
         }
 

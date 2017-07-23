@@ -36,7 +36,6 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
 
     public class BzojJudgeActor
     {
-        private HttpClient client;
         private const string baseUrl = "http://www.lydsy.com";
         private const string loginEndpoint = "/JudgeOnline/login.php";
         private const string submitEndpoint = "/JudgeOnline/submit.php";
@@ -47,12 +46,12 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         private const string timeUsedRegexString = "(?<=<td>{STATUSID}<td><a href='userinfo.php\\?user=[a-zA-Z0-9]{0,}'>[a-zA-Z0-9]{0,}</a><td><a href='problem.php\\?id=[0-9]{4,8}'>[0-9]{4,8}</a><td><font color=([a-zA-Z]{1,8}|#[0-9]{6})>{STATUS}</font><td>[0-9]{1,} <font color=red>kb</font><td>)[0-9]{1,}(?= <font color=red>ms</font><td>)";
         private Regex statusIdRegex = new Regex("(?<=<a target=_blank href=showsource.php\\?id=)\\d+");
         private Regex compileErrorInformationRegex = new Regex("(?<=<pre>)([\\d\\D]*)(?=</pre>)");
+        private HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
 
         public void Main()
         {
             var metadata = JsonConvert.DeserializeObject<VirtualJudgeMetadata>(File.ReadAllText("metadata.json"));
             statusEndpoint += metadata.Username;
-            client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
             MainAsync(metadata).Wait();
         }
 
