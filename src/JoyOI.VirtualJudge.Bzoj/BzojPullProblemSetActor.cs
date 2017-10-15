@@ -13,17 +13,17 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
     {
         private const string baseUrl = "http://www.lydsy.com";
         private const string problemsetEndpoint = "/JudgeOnline/problemset.php?page={PAGE}";
-        private Regex ProblemIdRegex = new Regex("(?<=<a href='problem.php\\?id=)[0-9]{4,6}(?='>)");
-        private Regex PageIndexRegex = new Regex("(?<=<a href='problemset.php\\?page=)[0-9]{1,}(?='>[0-9]{1,}</a>)");
-        private int page = 1;
-        private HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
+        private static Regex ProblemIdRegex = new Regex("(?<=<a href='problem.php\\?id=)[0-9]{4,6}(?='>)");
+        private static Regex PageIndexRegex = new Regex("(?<=<a href='problemset.php\\?page=)[0-9]{1,}(?='>[0-9]{1,}</a>)");
+        private static int page = 1;
+        private static HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
 
-        public void Main()
+        public static void Main()
         {
             MainAsync().Wait();
         }
 
-        private async Task MainAsync()
+        private static async Task MainAsync()
         {
             var retryLeftTimes = 3;
             main:
@@ -58,7 +58,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             }
         }
 
-        private async Task<int> FindMaxPageAsync()
+        private static async Task<int> FindMaxPageAsync()
         {
             var retryLeftTimes = 3;
             findMaxPage:
@@ -88,7 +88,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             }
         }
 
-        private async Task<IEnumerable<int>> FindProblemAsync(int page)
+        private static async Task<IEnumerable<int>> FindProblemAsync(int page)
         {
             var retryLeftTimes = 3;
             findProblem:

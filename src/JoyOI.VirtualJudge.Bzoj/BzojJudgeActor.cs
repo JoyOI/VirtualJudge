@@ -39,23 +39,23 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         private const string baseUrl = "http://www.lydsy.com";
         private const string loginEndpoint = "/JudgeOnline/login.php";
         private const string submitEndpoint = "/JudgeOnline/submit.php";
-        private string statusEndpoint = "/JudgeOnline/status.php?user_id=";
-        private string ceinfoEndpoint = "/JudgeOnline/ceinfo.php?sid=";
+        private static string statusEndpoint = "/JudgeOnline/status.php?user_id=";
+        private static string ceinfoEndpoint = "/JudgeOnline/ceinfo.php?sid=";
         private const string statusRegexString = "(?<=<td>{STATUSID}<td><a href='userinfo.php\\?user=[a-zA-Z0-9]{0,}'>[a-zA-Z0-9]{0,}</a><td><a href='problem.php\\?id=[0-9]{4,8}'>[0-9]{4,8}</a><td><font color=([a-zA-Z]{1,8}|#[0-9]{6})>)[a-zA-Z_ ]{1,}(?=</font>)";
         private const string memoryUsedRegexString = "(?<=<td>{STATUSID}<td><a href='userinfo.php\\?user=[a-zA-Z0-9]{0,}'>[a-zA-Z0-9]{0,}</a><td><a href='problem.php\\?id=[0-9]{4,8}'>[0-9]{4,8}</a><td><font color=([a-zA-Z]{1,8}|#[0-9]{6})>{STATUS}</font><td>)[0-9]{1,}(?= <font color=red>kb</font><td>)";
         private const string timeUsedRegexString = "(?<=<td>{STATUSID}<td><a href='userinfo.php\\?user=[a-zA-Z0-9]{0,}'>[a-zA-Z0-9]{0,}</a><td><a href='problem.php\\?id=[0-9]{4,8}'>[0-9]{4,8}</a><td><font color=([a-zA-Z]{1,8}|#[0-9]{6})>{STATUS}</font><td>[0-9]{1,} <font color=red>kb</font><td>)[0-9]{1,}(?= <font color=red>ms</font><td>)";
-        private Regex statusIdRegex = new Regex("(?<=<a target=_blank href=showsource.php\\?id=)\\d+");
-        private Regex compileErrorInformationRegex = new Regex("(?<=<pre>)([\\d\\D]*)(?=</pre>)");
-        private HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
+        private static Regex statusIdRegex = new Regex("(?<=<a target=_blank href=showsource.php\\?id=)\\d+");
+        private static Regex compileErrorInformationRegex = new Regex("(?<=<pre>)([\\d\\D]*)(?=</pre>)");
+        private static HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
 
-        public void Main()
+        public static void Main()
         {
             var metadata = JsonConvert.DeserializeObject<VirtualJudgeMetadata>(File.ReadAllText("metadata.json"));
             statusEndpoint += metadata.Username;
             MainAsync(metadata).Wait();
         }
 
-        private async Task MainAsync(VirtualJudgeMetadata metadata)
+        private static async Task MainAsync(VirtualJudgeMetadata metadata)
         {
             var retryLeftTimes = 3;
 
@@ -110,7 +110,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             }
         }
 
-        private async Task GetCookieAsync(string username, string password)
+        private static async Task GetCookieAsync(string username, string password)
         {
             var response = await client.PostAsync(loginEndpoint, new FormUrlEncodedContent(new Dictionary<string, string>
             {
@@ -122,7 +122,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             client.DefaultRequestHeaders.Add("Cookie", cookie);
         }
 
-        private async Task<string> SubmitCodeAsync(string problemId, string code, string language)
+        private static async Task<string> SubmitCodeAsync(string problemId, string code, string language)
         {
             int langId = -1;
             switch (language)
@@ -155,7 +155,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             return statusIdRegex.Match(html).Value;
         }
 
-        private async Task<PollResult> PollResultAsync(string statusId)
+        private static async Task<PollResult> PollResultAsync(string statusId)
         {
             var response = await client.GetAsync(statusEndpoint);
             var html = await response.Content.ReadAsStringAsync();
@@ -178,19 +178,19 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             return ret;
         }
 
-        private string ParseResult(string bzojResult)
+        private static string ParseResult(string bzojResult)
         {
             return bzojResult.Replace("_", " ");
         }
 
-        private void WriteResultFile(VirtualJudgeResult result)
+        private static void WriteResultFile(VirtualJudgeResult result)
         {
             File.WriteAllText("result.json", JsonConvert.SerializeObject(result));
             var returnFiles = new[] { "result.json" };
             File.WriteAllText("return.json", JsonConvert.SerializeObject(returnFiles));
         }
 
-        private async Task<string> GetCompileErrorInformationAsync(string statusId)
+        private static async Task<string> GetCompileErrorInformationAsync(string statusId)
         {
             var response = await client.GetAsync(ceinfoEndpoint);
             var html = await response.Content.ReadAsStringAsync();

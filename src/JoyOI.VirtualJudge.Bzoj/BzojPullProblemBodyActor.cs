@@ -13,19 +13,19 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
     {
         private const string baseUrl = "http://www.lydsy.com";
         private const string problemEndpoint = "/JudgeOnline/problem.php?id=";
-        private Dictionary<Guid, string> imageDictionary = new Dictionary<Guid, string>();
-        private List<string> returnFiles = new List<string>(1) { "problemset.json" };
-        private HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
-        private Regex timeLimitRegex = new Regex("(?<=<span class=green>Time Limit: </span>)([0-9]{1,})(?= Sec)"); // Unit: sec
-        private Regex memoryLimitRegex = new Regex("(?<=<span class=green>Memory Limit: </span>)([0-9]{1,})(?= MB<br>)"); // Unit: MB
-        private Regex bodyRegex = new Regex("(?<=Discuss</a>]</center>)([\\s\\S]*)(?=<div class=content><p><a href='problemset)"); // HTML
+        private static Dictionary<Guid, string> imageDictionary = new Dictionary<Guid, string>();
+        private static List<string> returnFiles = new List<string>(1) { "problemset.json" };
+        private static HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
+        private static Regex timeLimitRegex = new Regex("(?<=<span class=green>Time Limit: </span>)([0-9]{1,})(?= Sec)"); // Unit: sec
+        private static Regex memoryLimitRegex = new Regex("(?<=<span class=green>Memory Limit: </span>)([0-9]{1,})(?= MB<br>)"); // Unit: MB
+        private static Regex bodyRegex = new Regex("(?<=Discuss</a>]</center>)([\\s\\S]*)(?=<div class=content><p><a href='problemset)"); // HTML
 
-        public void Main()
+        public static void Main()
         {
             MainAsync(Convert.ToInt32(File.ReadAllText("id.txt"))).Wait();
         }
 
-        private async Task MainAsync(int problemId)
+        private static async Task MainAsync(int problemId)
         {
             var retryLeftTimes = 3;
             main:
@@ -54,7 +54,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             }
         }
 
-        private async Task<object> GetProblemBodyAsync(int problemId)
+        private static async Task<object> GetProblemBodyAsync(int problemId)
         {
             var response = await client.GetAsync(problemEndpoint + problemId);
             var html = await response.Content.ReadAsStringAsync();
