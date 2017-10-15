@@ -176,7 +176,10 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
 
         private static string ParseResult(string bzojResult)
         {
-            return bzojResult.Replace("_", " ").Replace(" Limit", "");
+            var ret = bzojResult.Replace("_", " ").Replace(" Limit", "");
+            if (ret.EndsWith("Exceed"))
+                ret += "ed";
+            return ret;
         }
 
         private static void WriteResultFile(VirtualJudgeResult result)
