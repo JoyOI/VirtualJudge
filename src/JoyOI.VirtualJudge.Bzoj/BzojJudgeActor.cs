@@ -104,10 +104,6 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                     goto trySubmit;
                 }
             }
-            finally
-            {
-                client.Dispose();
-            }
         }
 
         private static async Task GetCookieAsync(string username, string password)
