@@ -5,12 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JoyOI.ManagementService" Version="1.0.0-alpha-10056" />
+    <PackageReference Include="JoyOI.ManagementService" Version="1.0.0-alpha-10076" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Shared\JoyOI.VirtualJudge.Common\JoyOI.VirtualJudge.Common.csproj" />
   </ItemGroup>
 
 </Project>

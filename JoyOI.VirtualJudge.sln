@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26711.1
+VisualStudioVersion = 15.0.27009.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.Common", "src\Shared\JoyOI.VirtualJudge.Common\JoyOI.VirtualJudge.Common.csproj", "{7A118DF2-6EA2-4A4C-B62F-2B1BA027E6AC}"
 EndProject
@@ -13,7 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EAE226E3-5BE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{66D065B1-F8AF-450B-BC89-7873DCD9CC92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyOI.VirtualJudge.LeetCode", "src\JoyOI.VirtualJudge.LeetCode\JoyOI.VirtualJudge.LeetCode.csproj", "{47587125-1656-4AFC-B4CE-F9C083B8F836}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.LeetCode", "src\JoyOI.VirtualJudge.LeetCode\JoyOI.VirtualJudge.LeetCode.csproj", "{47587125-1656-4AFC-B4CE-F9C083B8F836}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{F288129D-7EDE-4F45-BC25-05456B85E515}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deploy", "src\Deploy\Deploy\Deploy.csproj", "{DF1FBCD2-3F6F-48F4-B67E-69548992266B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +41,10 @@ Global
 		{47587125-1656-4AFC-B4CE-F9C083B8F836}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47587125-1656-4AFC-B4CE-F9C083B8F836}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47587125-1656-4AFC-B4CE-F9C083B8F836}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -47,6 +55,8 @@ Global
 		{019FC75E-D3DF-4233-8ABD-2C09FEA878B2} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 		{66D065B1-F8AF-450B-BC89-7873DCD9CC92} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 		{47587125-1656-4AFC-B4CE-F9C083B8F836} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
+		{F288129D-7EDE-4F45-BC25-05456B85E515} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
+		{DF1FBCD2-3F6F-48F4-B67E-69548992266B} = {F288129D-7EDE-4F45-BC25-05456B85E515}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EFA28B29-A1A6-4F01-88DA-3ABAD9117FEE}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Http;
 using JoyOI.ManagementService.Core;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -20,6 +21,7 @@ namespace JoyOI.VirtualJudge.StateMachine
     {
         public override async Task RunAsync()
         {
+            Limitation.EnableNetwork = true;
             var metadata = await InitialBlobs.FindSingleBlob("metadata.json").ReadAsJsonAsync<VirtualJudgeMetadata>(this);
 
             switch (Stage)
@@ -36,7 +38,7 @@ namespace JoyOI.VirtualJudge.StateMachine
                     }
                     break;
                 case "Finally":
-                    // TODO: feedback
+                    await HttpInvokeAsync(HttpMethod.Post, "/management/judge/stagechange/" + this.Id, null);
                     break;
             }
         }

@@ -54,18 +54,18 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             }
         }
 
-        private async Task<ProblemJson> GetProblemBodyAsync(int problemId)
+        private async Task<object> GetProblemBodyAsync(int problemId)
         {
             var response = await client.GetAsync(problemEndpoint + problemId);
             var html = await response.Content.ReadAsStringAsync();
             var memory = Convert.ToInt32(memoryLimitRegex.Match(html).Value) * 1024 * 1024;
             var time = Convert.ToInt32(timeLimitRegex.Match(html).Value) * 1000;
             var body = bodyRegex.Match(html).Value.Replace("<img src=\"/JudgeOnline", "<img src=\"" + baseUrl + "/JudgeOnline");
-            return new ProblemJson
+            return new
             {
                 Body = body,
                 Id = problemId.ToString(),
-                Source = ProblemSource.Bzoj,
+                Source = "Bzoj",
                 MemoryLimitInByte = memory,
                 TimeLimitInMs = time,
                 OriginUrl = problemEndpoint + problemId
