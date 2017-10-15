@@ -41,12 +41,14 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         private const string submitEndpoint = "/JudgeOnline/submit.php";
         private static string statusEndpoint = "/JudgeOnline/status.php?user_id=";
         private static string ceinfoEndpoint = "/JudgeOnline/ceinfo.php?sid=";
+        private static string statusListEndpoint = "/JudgeOnline/status.php?problem_id={PROBLEM_ID}&user_id=joyoivjudge1&language={LANGUAGE}&jresult=-1";
         private const string statusRegexString = "(?<=<td>{STATUSID}<td><a href='userinfo.php\\?user=[a-zA-Z0-9]{0,}'>[a-zA-Z0-9]{0,}</a><td><a href='problem.php\\?id=[0-9]{4,8}'>[0-9]{4,8}</a><td><font color=([a-zA-Z]{1,8}|#[0-9]{6})>)[a-zA-Z_ ]{1,}(?=</font>)";
         private const string memoryUsedRegexString = "(?<=<td>{STATUSID}<td><a href='userinfo.php\\?user=[a-zA-Z0-9]{0,}'>[a-zA-Z0-9]{0,}</a><td><a href='problem.php\\?id=[0-9]{4,8}'>[0-9]{4,8}</a><td><font color=([a-zA-Z]{1,8}|#[0-9]{6})>{STATUS}</font><td>)[0-9]{1,}(?= <font color=red>kb</font><td>)";
         private const string timeUsedRegexString = "(?<=<td>{STATUSID}<td><a href='userinfo.php\\?user=[a-zA-Z0-9]{0,}'>[a-zA-Z0-9]{0,}</a><td><a href='problem.php\\?id=[0-9]{4,8}'>[0-9]{4,8}</a><td><font color=([a-zA-Z]{1,8}|#[0-9]{6})>{STATUS}</font><td>[0-9]{1,} <font color=red>kb</font><td>)[0-9]{1,}(?= <font color=red>ms</font><td>)";
         private static Regex statusIdRegex = new Regex("(?<=<a target=_blank href=showsource.php\\?id=)\\d+");
         private static Regex compileErrorInformationRegex = new Regex("(?<=<pre>)([\\d\\D]*)(?=</pre>)");
-        private static HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
+        private static System.Net.CookieContainer container = new System.Net.CookieContainer();
+        private static HttpClient client = new HttpClient(new HttpClientHandler() { CookieContainer = container }) { BaseAddress = new Uri(baseUrl) };
 
         public static void Main()
         {
@@ -113,9 +115,6 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                 { "user_id", username },
                 { "password", password }
             }));
-            var cookie = response.Headers.Single(x => x.Key == "Set-Cookie").Value.Last().Replace(" path=/", "");
-            client.DefaultRequestHeaders.Remove("Cookie");
-            client.DefaultRequestHeaders.Add("Cookie", cookie);
         }
 
         private static async Task<string> SubmitCodeAsync(string problemId, string code, string language)
@@ -147,7 +146,8 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             });
             var msg = new HttpRequestMessage(HttpMethod.Post, submitEndpoint) { Content = body };
             var response2 = await client.SendAsync(msg);
-            var html = await response2.Content.ReadAsStringAsync();
+            var response3 = await client.GetAsync(statusListEndpoint.Replace("{PROBLEM_ID}", problemId).Replace("{LANGUAGE}", langId.ToString()));
+            var html = await response3.Content.ReadAsStringAsync();
             return statusIdRegex.Match(html).Value;
         }
 
