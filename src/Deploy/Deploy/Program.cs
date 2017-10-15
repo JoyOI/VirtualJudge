@@ -19,9 +19,9 @@ namespace Deploy
             client.PatchActorAsync("BzojPullProblemBodyActor", File.ReadAllText(@"C:\Users\Yuko\Documents\GitHub\VirtualJudge\src\JoyOI.VirtualJudge.Bzoj\BzojPullProblemBodyActor.cs")).Wait();
             client.PatchStateMachineDefinitionAsync("BzojSyncProblemStateMachine", File.ReadAllText(@"C:\Users\Yuko\Documents\GitHub\VirtualJudge\src\JoyOI.VirtualJudge.Bzoj\BzojSyncProblemStateMachine.cs"), null).Wait();
 
-            /* Trigger Pulling BZOJ */
-            var stateMachineId = client.PutStateMachineInstanceAsync("BzojSyncProblemStateMachine", "http://api.oj.joyoi.net").Result;
-            Console.WriteLine(stateMachineId);
+            ///* Trigger Pulling BZOJ */
+            //var stateMachineId = client.PutStateMachineInstanceAsync("BzojSyncProblemStateMachine", "http://api.oj.joyoi.net").Result;
+            //Console.WriteLine(stateMachineId);
 
             Console.Read();
         }

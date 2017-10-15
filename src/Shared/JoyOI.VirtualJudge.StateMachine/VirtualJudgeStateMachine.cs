@@ -26,6 +26,8 @@ namespace JoyOI.VirtualJudge.StateMachine
 
             switch (Stage)
             {
+                case "Start":
+                    goto case "SendRequest";
                 case "SendRequest":
                     if (metadata.Source == "Bzoj")
                     {
