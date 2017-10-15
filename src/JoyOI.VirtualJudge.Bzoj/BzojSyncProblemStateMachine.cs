@@ -11,6 +11,7 @@ namespace JoyOI.VirtualJudge.Bzoj.StateMachine
         public override async Task RunAsync()
         {
             Limitation.EnableNetwork = true;
+            Limitation.ExecutionTimeout = 1000 * 60 * 60 * 2;
 
             switch (Stage)
             {
