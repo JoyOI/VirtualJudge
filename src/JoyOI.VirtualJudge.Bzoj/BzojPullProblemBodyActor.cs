@@ -14,8 +14,11 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         private const string baseUrl = "http://www.lydsy.com";
         private const string problemEndpoint = "/JudgeOnline/problem.php?id=";
         private Dictionary<Guid, string> imageDictionary = new Dictionary<Guid, string>();
-        private List<string> returnFiles = new List<string>(50) { "problemset.json", "image.json" };
+        private List<string> returnFiles = new List<string>(1) { "problemset.json" };
         private HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
+        private Regex timeLimitRegex = new Regex("(?<=<span class=green>Time Limit: </span>)([0-9]{1,})(?= Sec)"); // Unit: sec
+        private Regex memoryLimitRegex = new Regex("(?<=<span class=green>Memory Limit: </span>)([0-9]{1,})(?= MB<br>)"); // Unit: MB
+        private Regex bodyRegex = new Regex("(?<=Discuss</a>]</center>)([\\s\\S]*)(?=<div class=content><p><a href='problemset)"); // HTML
 
         public void Main()
         {
@@ -29,7 +32,6 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             try
             {
                 File.WriteAllText("problem.json", JsonConvert.SerializeObject(await GetProblemBodyAsync(problemId)));
-                File.WriteAllText("image.json", JsonConvert.SerializeObject(imageDictionary));
                 File.WriteAllText("return.json", JsonConvert.SerializeObject(returnFiles));
             }
             catch (Exception ex)
@@ -54,23 +56,20 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
 
         private async Task<ProblemJson> GetProblemBodyAsync(int problemId)
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 生成一个GUID表示被下载的图片ID
-        /// </summary>
-        /// <param name="relativeUrl"></param>
-        /// <returns>返回图片ID后，需要将Body中的图片URL改为/File/Download/[GUID]</returns>
-        private async Task<Guid> DownloadImageAsync(string relativeUrl)
-        {
-            var guid = Guid.NewGuid();
-            var response = await client.GetAsync(relativeUrl);
-            var bytes = await response.Content.ReadAsByteArrayAsync();
-            var filename = guid + Path.GetExtension(relativeUrl);
-            File.WriteAllBytes(filename, bytes);
-            returnFiles.Add(filename);
-            return guid;
+            var response = await client.GetAsync(problemEndpoint + problemId);
+            var html = await response.Content.ReadAsStringAsync();
+            var memory = Convert.ToInt32(memoryLimitRegex.Match(html).Value) * 1024 * 1024;
+            var time = Convert.ToInt32(timeLimitRegex.Match(html).Value) * 1000;
+            var body = bodyRegex.Match(html).Value.Replace("<img src=\"/JudgeOnline", "<img src=\"" + baseUrl + "/JudgeOnline");
+            return new ProblemJson
+            {
+                Body = body,
+                Id = problemId.ToString(),
+                Source = ProblemSource.Bzoj,
+                MemoryLimitInByte = memory,
+                TimeLimitInMs = time,
+                OriginUrl = problemEndpoint + problemId
+            };
         }
     }
 }
