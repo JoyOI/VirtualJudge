@@ -36,7 +36,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                     await Task.Delay(200);
                 }
                 File.WriteAllText("problemset.json", JsonConvert.SerializeObject(problemIds));
-                File.WriteAllText("return.json", JsonConvert.SerializeObject(new[] { "problemset.json" }));
+                File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = new[] { "problemset.json" } }));
             }
             catch (Exception ex)
             {
@@ -44,7 +44,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                 if (retryLeftTimes <= 0)
                 {
                     File.WriteAllText("error.txt", ex.ToString());
-                    File.WriteAllText("return.json", JsonConvert.SerializeObject(new[] { "error.txt" }));
+                    File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = new[] { "error.txt" } }));
                 }
                 else
                 {

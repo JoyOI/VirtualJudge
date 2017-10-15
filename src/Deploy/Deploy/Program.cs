@@ -20,8 +20,8 @@ namespace Deploy
             client.PatchStateMachineDefinitionAsync("BzojSyncProblemStateMachine", File.ReadAllText(@"C:\Users\Yuko\Documents\GitHub\VirtualJudge\src\JoyOI.VirtualJudge.Bzoj\BzojSyncProblemStateMachine.cs"), null).Wait();
 
             /* Trigger Pulling BZOJ */
-            //var stateMachineId = client.PutStateMachineInstanceAsync("BzojSyncProblemStateMachine", "http://api.oj.joyoi.net").Result;
-            //Console.WriteLine(stateMachineId);
+            var stateMachineId = client.PutStateMachineInstanceAsync("BzojSyncProblemStateMachine", "http://api.oj.joyoi.net").Result;
+            Console.WriteLine(stateMachineId);
 
             Console.Read();
         }

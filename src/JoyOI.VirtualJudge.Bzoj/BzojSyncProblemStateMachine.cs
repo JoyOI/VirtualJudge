@@ -40,7 +40,7 @@ namespace JoyOI.VirtualJudge.Bzoj.StateMachine
                     goto case "CollectingResult";
                 case "CollectingResult":
                     await SetStageAsync("CollectingResult");
-                    await HttpInvokeAsync(HttpMethod.Post, "/management/problem/bzoj/" + this.Id, null);
+                    var task = HttpInvokeAsync(HttpMethod.Post, "/management/problem/bzoj/" + this.Id, null);
                     break;
             }
         }

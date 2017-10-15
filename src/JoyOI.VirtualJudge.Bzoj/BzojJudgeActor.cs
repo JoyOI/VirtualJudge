@@ -187,7 +187,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         {
             File.WriteAllText("result.json", JsonConvert.SerializeObject(result));
             var returnFiles = new[] { "result.json" };
-            File.WriteAllText("return.json", JsonConvert.SerializeObject(returnFiles));
+            File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = returnFiles }));
         }
 
         private static async Task<string> GetCompileErrorInformationAsync(string statusId)

@@ -14,11 +14,12 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         private const string baseUrl = "http://www.lydsy.com";
         private const string problemEndpoint = "/JudgeOnline/problem.php?id=";
         private static Dictionary<Guid, string> imageDictionary = new Dictionary<Guid, string>();
-        private static List<string> returnFiles = new List<string>(1) { "problemset.json" };
+        private static List<string> returnFiles = new List<string>(1) { "problem.json" };
         private static HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
         private static Regex timeLimitRegex = new Regex("(?<=<span class=green>Time Limit: </span>)([0-9]{1,})(?= Sec)"); // Unit: sec
         private static Regex memoryLimitRegex = new Regex("(?<=<span class=green>Memory Limit: </span>)([0-9]{1,})(?= MB<br>)"); // Unit: MB
         private static Regex bodyRegex = new Regex("(?<=Discuss</a>]</center>)([\\s\\S]*)(?=<div class=content><p><a href='problemset)"); // HTML
+        private static Regex titleRegex = new Regex("(?<=<title>Problem [0-9]{4,6}. -- )([\\s\\S]*)(?=</title>)"); // HTML
 
         public static void Main()
         {
@@ -32,7 +33,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             try
             {
                 File.WriteAllText("problem.json", JsonConvert.SerializeObject(await GetProblemBodyAsync(problemId)));
-                File.WriteAllText("return.json", JsonConvert.SerializeObject(returnFiles));
+                File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = returnFiles }));
             }
             catch (Exception ex)
             {
@@ -40,7 +41,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                 if (retryLeftTimes <= 0)
                 {
                     File.WriteAllText("error.txt", ex.ToString());
-                    File.WriteAllText("return.json", JsonConvert.SerializeObject(new[] { "error.txt" }));
+                    File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = new[] { "error.txt" } }));
                 }
                 else
                 {
@@ -60,7 +61,10 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             var html = await response.Content.ReadAsStringAsync();
             var memory = Convert.ToInt32(memoryLimitRegex.Match(html).Value) * 1024 * 1024;
             var time = Convert.ToInt32(timeLimitRegex.Match(html).Value) * 1000;
-            var body = bodyRegex.Match(html).Value.Replace("<img src=\"/JudgeOnline", "<img src=\"" + baseUrl + "/JudgeOnline");
+            var body = bodyRegex.Match(html).Value
+                .Replace("src=\"/", "src=\"" + baseUrl + "/")
+                .Replace("src=\"", "src=\"" + baseUrl + "/JudgeOnline/");
+            var title = titleRegex.Match(html).Value;
             return new
             {
                 Body = body,
@@ -68,7 +72,8 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                 Source = "Bzoj",
                 MemoryLimitInByte = memory,
                 TimeLimitInMs = time,
-                OriginUrl = problemEndpoint + problemId
+                OriginUrl = baseUrl + problemEndpoint + problemId,
+                Title = title
             };
         }
     }

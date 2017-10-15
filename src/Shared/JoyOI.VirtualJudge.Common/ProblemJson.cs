@@ -10,6 +10,11 @@ namespace JoyOI.VirtualJudge
         public string Id { get; set; }
 
         /// <summary>
+        /// 题目标题
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
         /// 题面的markdown形式，需要额外爬取所有的Image并将图片URL改为/File/Download/<GUID>
         /// </summary>
         public string Body { get; set; }

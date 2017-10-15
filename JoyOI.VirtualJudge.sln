@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.LeetCode
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{F288129D-7EDE-4F45-BC25-05456B85E515}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deploy", "src\Deploy\Deploy\Deploy.csproj", "{DF1FBCD2-3F6F-48F4-B67E-69548992266B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deploy", "src\Deploy\Deploy\Deploy.csproj", "{DF1FBCD2-3F6F-48F4-B67E-69548992266B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
