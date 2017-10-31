@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using JoyOI.ManagementService.Core;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Newtonsoft.Json;
 
 namespace JoyOI.VirtualJudge.StateMachine
 {
@@ -27,12 +28,24 @@ namespace JoyOI.VirtualJudge.StateMachine
             switch (Stage)
             {
                 case "Start":
+                    await SetStageAsync("Start");
+                    goto case "FetchingAccount";
+                case "FetchingAccount":
+                    await SetStageAsync("FetchingAccount");
+                    var result = await HttpInvokeAsync(HttpMethod.Post, "/management/virtualjudge/requestaccount", new { id = this.Id });
+                    var response = JsonConvert.DeserializeObject<dynamic>(result);
+                    if (response.code != 200)
+                    {
+                        throw new Exception($"The online judge api responsed error { response.code } \r\n{ response.msg }");
+                    }
+                    var accountFileId = await UploadJsonFileAsync("account.json", new { Username = response.data.username, Password = response.data.password });
                     goto case "SendRequest";
                 case "SendRequest":
                     if (metadata.Source == "Bzoj")
                     {
                         await DeployAndRunActorAsync(new RunActorParam("BzojJudgeActor",
-                            InitialBlobs.FindSingleBlob("metadata.json")));
+                            InitialBlobs.FindSingleBlob("metadata.json"), 
+                            new BlobInfo(accountFileId, "account.json")));
                     }
                     else
                     {
@@ -40,6 +53,7 @@ namespace JoyOI.VirtualJudge.StateMachine
                     }
                     break;
                 case "Finally":
+                    await SetStageAsync("Finally");
                     await HttpInvokeAsync(HttpMethod.Post, "/management/judge/stagechange/" + this.Id, null);
                     break;
             }

@@ -15,8 +15,13 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         public string ProblemId { get; set; }
         public string Language { get; set; }
         public string Code { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
+    }
+
+    public class VirtualJudgeAccount
+    {
+        public string username { get; set; }
+
+        public string password { get; set; }
     }
 
     public class VirtualJudgeResult
@@ -53,11 +58,12 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         public static void Main()
         {
             var metadata = JsonConvert.DeserializeObject<VirtualJudgeMetadata>(File.ReadAllText("metadata.json"));
-            statusEndpoint += metadata.Username;
-            MainAsync(metadata).Wait();
+            var account = JsonConvert.DeserializeObject<VirtualJudgeAccount>(File.ReadAllText("account.json"));
+            statusEndpoint += account.username;
+            MainAsync(metadata, account).Wait();
         }
 
-        private static async Task MainAsync(VirtualJudgeMetadata metadata)
+        private static async Task MainAsync(VirtualJudgeMetadata metadata, VirtualJudgeAccount account)
         {
             var retryLeftTimes = 3;
 
@@ -65,7 +71,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
 
             try
             {
-                await GetCookieAsync(metadata.Username, metadata.Password);
+                await GetCookieAsync(account.username, account.password);
                 var statusId = await SubmitCodeAsync(metadata.ProblemId, metadata.Code, metadata.Language);
                 if (string.IsNullOrEmpty(statusId))
                 {
