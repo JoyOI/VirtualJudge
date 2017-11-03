@@ -31,13 +31,6 @@ namespace JoyOI.VirtualJudge.LeetCode
         public string Hint { get; set; }
     }
 
-    public class PollResult
-    {
-        public string Result { get; set; }
-        public long TimeUsedInMs { get; set; }
-        public long MemoryUsedInByte { get; set; }
-    }
-
     class SubmissionResult
     {
         public int submission_id { get; set; }
@@ -65,8 +58,43 @@ namespace JoyOI.VirtualJudge.LeetCode
         }
 
         private static async Task MainAsync(VirtualJudgeMetadata metadata, VirtualJudgeAccount account) {
-            await GetCredantial(account.username, account.password);
-
+            var retryLeftTimes = 3;
+            trySubmit:
+            try
+            {
+                await GetCredantial(account.username, account.password);
+                var submissionId = await SubmitCodeAsync(metadata.ProblemId, metadata.Code, metadata.Language);
+                if (submissionId < 1)
+                {
+                    throw new Exception("Failed to submit user code to leetcode");
+                }
+                VirtualJudgeResult pollResult;
+                do
+                {
+                    await Task.Delay(1000);
+                    pollResult = await PollResultAsync(submissionId);
+                } while (pollResult.Result == "WAITING");
+                WriteResultFile(pollResult);
+            }
+            catch (Exception ex)
+            {
+                --retryLeftTimes;
+                if (retryLeftTimes <= 0)
+                {
+                    WriteResultFile(new VirtualJudgeResult
+                    {
+                        Hint = ex.ToString(),
+                        Result = "System Error",
+                        MemoryUsedInByte = 0,
+                        TimeUsedInMs = 0
+                    });
+                }
+                else
+                {
+                    await Task.Delay(3000);
+                    goto trySubmit;
+                }
+            }
         }
 
         private static async Task<HttpResponseMessage> GetCredantial(string username, string password)
@@ -95,7 +123,8 @@ namespace JoyOI.VirtualJudge.LeetCode
             var problemHTML = await problemRes.Content.ReadAsStringAsync();
             var problemId = questionId.Match(problemHTML);
             var submitUri = submitEndpoint.Replace("{PROBLEM-NAME}", problemName);
-            var submitParams = new {
+            var submitParams = new
+            {
                 data_input = "",
                 judge_type = "large",
                 lang = lang,
@@ -111,11 +140,11 @@ namespace JoyOI.VirtualJudge.LeetCode
             return submissionResult.submission_id;
         }
 
-        private static async Task<PollResult> PollResultAsync(string submissionId) {
-            var checkUri = checkEndpoint.Replace("{SUBMISSION-ID}", submissionId);
+        private static async Task<VirtualJudgeResult> PollResultAsync(int submissionId) {
+            var checkUri = checkEndpoint.Replace("{SUBMISSION-ID}", submissionId.ToString());
             await Task.Delay(1000);
             var checkRes = await client.GetAsync(checkUri);
-            var pollRes = new PollResult
+            var pollRes = new VirtualJudgeResult
             {
                 Result = "WAITING"
             };
@@ -123,20 +152,37 @@ namespace JoyOI.VirtualJudge.LeetCode
             {
                 return pollRes;
             }
-            var resDef = new {
+            var resDef = new
+            {
                 state = "",
                 status_msg = "",
                 display_runtime = "",
                 compile_error = "",
                 run_success = false,
+                input = "",
+                expected_output = "",
+                code_output = "",
+                status_code = 0,
             };
             var resJson = await checkRes.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeAnonymousType(resJson, resDef);
-            if (result.state == "SUCCESS") {
+            if (result.state == "SUCCESS")
+            {
                 pollRes.Result = result.status_msg;
                 if (!result.run_success)
                 {
-                    pollRes.Result = String.Format("{0}: {1}", result.status_msg, result.compile_error);
+                    pollRes.Result = result.status_msg;
+                    switch (result.status_code) {
+                        case 20: // Compile Error
+                            pollRes.Hint = result.compile_error;
+                            break;
+                        case 11: // Wrong Answer
+                            pollRes.Hint = String.Format
+                                ("Input: {0} \n Output: {1} \n Expected:{2}",
+                                result.input, result.code_output, result.expected_output);
+                            break;
+                        // TODO: more status to be discovered
+                    }
                 }
                 else
                 {
@@ -145,6 +191,12 @@ namespace JoyOI.VirtualJudge.LeetCode
                 }
             }
             return pollRes;
+        }
+        private static void WriteResultFile(VirtualJudgeResult result)
+        {
+            File.WriteAllText("result.json", JsonConvert.SerializeObject(result));
+            var returnFiles = new[] { "result.json" };
+            File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = returnFiles }));
         }
     }
 }
