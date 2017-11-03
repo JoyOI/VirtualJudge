@@ -38,6 +38,11 @@ namespace JoyOI.VirtualJudge.LeetCode
         public long MemoryUsedInByte { get; set; }
     }
 
+    class SubmissionResult
+    {
+        public int submission_id { get; set; }
+    }
+
     class LeetcodeJudgeActor
     {
         private const string baseUrl = "https://leetcode.com";
@@ -77,7 +82,7 @@ namespace JoyOI.VirtualJudge.LeetCode
                 { "remember", "" }
             }));
         }
-        private static async Task<string> SubmitCodeAsync(string problemName, string code, string language) {
+        private static async Task<int> SubmitCodeAsync(string problemName, string code, string language) {
             string lang = language.ToLower();
             switch (language) // leave it as switch to extent in the future
             {
@@ -101,6 +106,9 @@ namespace JoyOI.VirtualJudge.LeetCode
             var submitRes = await client.PostAsync(submitUri, new StringContent(
                 JsonConvert.SerializeObject(submitParams),
                 Encoding.UTF8, "application/json"));
+            var submissionJson = await submitRes.Content.ReadAsStringAsync();
+            var submissionResult = JsonConvert.DeserializeObject<SubmissionResult>(submissionJson);
+            return submissionResult.submission_id;
         }
     }
 }
