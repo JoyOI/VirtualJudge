@@ -83,7 +83,7 @@ namespace JoyOI.VirtualJudge.LeetCode
             }));
         }
         private static async Task<int> SubmitCodeAsync(string problemName, string code, string language) {
-            string lang = language.ToLower();
+            var lang = language.ToLower();
             switch (language) // leave it as switch to extent in the future
             {
                 case "C++":
@@ -109,6 +109,42 @@ namespace JoyOI.VirtualJudge.LeetCode
             var submissionJson = await submitRes.Content.ReadAsStringAsync();
             var submissionResult = JsonConvert.DeserializeObject<SubmissionResult>(submissionJson);
             return submissionResult.submission_id;
+        }
+
+        private static async Task<PollResult> PollResultAsync(string submissionId) {
+            var checkUri = checkEndpoint.Replace("{SUBMISSION-ID}", submissionId);
+            await Task.Delay(1000);
+            var checkRes = await client.GetAsync(checkUri);
+            var pollRes = new PollResult
+            {
+                Result = "WAITING"
+            };
+            if (checkRes.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                return pollRes;
+            }
+            var resDef = new {
+                state = "",
+                status_msg = "",
+                display_runtime = "",
+                compile_error = "",
+                run_success = false,
+            };
+            var resJson = await checkRes.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeAnonymousType(resJson, resDef);
+            if (result.state == "SUCCESS") {
+                pollRes.Result = result.status_msg;
+                if (!result.run_success)
+                {
+                    pollRes.Result = String.Format("{0}: {1}", result.status_msg, result.compile_error);
+                }
+                else
+                {
+                    pollRes.Result = result.status_msg;
+                    pollRes.TimeUsedInMs = Convert.ToInt64(result.display_runtime);
+                }
+            }
+            return pollRes;
         }
     }
 }
