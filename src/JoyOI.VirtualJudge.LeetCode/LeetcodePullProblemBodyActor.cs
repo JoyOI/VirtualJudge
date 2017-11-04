@@ -72,7 +72,8 @@ namespace JoyOI.VirtualJudge.LeetCode
             p.StandardInput.WriteLine(String.Format("node {0}", jsFile));
             p.WaitForExit();
             var templates = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("stdout.txt"));
-            var body = bodyRegex.Match(problemHTML).Value;
+            var body = bodyRegex.Match(problemHTML).Value
+                .Replace("src=\"/", "src=\"" + baseUrl + "/"); 
             var title = bodyRegex.Match(problemHTML).Value;
             return new
             {
