@@ -17,7 +17,8 @@ namespace JoyOI.VirtualJudge.LeetCode
         private static List<string> returnFiles = new List<string>(1) { "problem.json" };
         private static HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
         private static Regex dataRegex = new Regex("var pageData =(?:(?!</script>)[\\s\\S])*");
-        private static Regex bodyRegex = new Regex()
+        private static Regex bodyRegex = new Regex(@"(?<=<div class=""question-description"">)[\s\S]*(?=</div>[\s\S]*?<!-- Interview Feedback -->)");
+        private static Regex titleRegex = new Regex(@"(?<=<div class=""question-title clearfix"">[\s\S]*?<div class=""row"">[\s\S]*?<div class=""col-md-12"">[\s\S]*?<h3>[\s\S]*?)[\s\S]*(?=<\/h3>)");
 
         public static void Main()
         {
@@ -71,7 +72,16 @@ namespace JoyOI.VirtualJudge.LeetCode
             p.StandardInput.WriteLine(String.Format("node {0}", jsFile));
             p.WaitForExit();
             var templates = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("stdout.txt"));
-            
+            var body = bodyRegex.Match(problemHTML).Value;
+            var title = bodyRegex.Match(problemHTML).Value;
+            return new
+            {
+                Body = body,
+                Id = problemName,
+                Source = "Leetcode",
+                OriginUrl = baseUrl + problemUri,
+                Title = title
+            };
         }
     }
 }
