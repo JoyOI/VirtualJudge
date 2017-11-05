@@ -29,6 +29,8 @@ namespace JoyOI.VirtualJudge.LeetCode
         public long TimeUsedInMs { get; set; }
         public long MemoryUsedInByte { get; set; }
         public string Hint { get; set; }
+        public int Passed { get; set; }
+        public int Total { get; set; }
     }
 
     class SubmissionResult
@@ -163,12 +165,17 @@ namespace JoyOI.VirtualJudge.LeetCode
                 expected_output = "",
                 code_output = "",
                 status_code = 0,
+                last_testcase = "",
+                total_correct = 0,
+                total_testcases = 0
             };
             var resJson = await checkRes.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeAnonymousType(resJson, resDef);
             if (result.state == "SUCCESS")
             {
                 pollRes.Result = result.status_msg;
+                pollRes.Passed = result.total_correct;
+                pollRes.Total = result.total_testcases;
                 if (!result.run_success)
                 {
                     pollRes.Result = result.status_msg;
@@ -180,6 +187,15 @@ namespace JoyOI.VirtualJudge.LeetCode
                             pollRes.Hint = String.Format
                                 ("Input: {0} \n Output: {1} \n Expected:{2}",
                                 result.input, result.code_output, result.expected_output);
+                            break;
+                        case 14: // Time Limit Exceeded
+                            pollRes.Hint = String.Format
+                                ("Last executed input: {0}", result.last_testcase);
+                            break;
+                        default: // Unknown Error
+                            if (result.status_msg == null) {
+                                pollRes.Result = "Unknown Error";
+                            }
                             break;
                         // TODO: more status to be discovered
                     }
