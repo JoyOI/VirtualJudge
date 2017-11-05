@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
-    class LeetcodeProblemSetActor
+    class LeetcodePullProblemSetActor
     {
 
         private class LeetcodeProblemPointer
