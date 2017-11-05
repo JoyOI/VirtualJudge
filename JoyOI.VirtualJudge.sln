@@ -19,8 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{F28812
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deploy", "src\Deploy\Deploy\Deploy.csproj", "{DF1FBCD2-3F6F-48F4-B67E-69548992266B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestLeetcode", "UnitTestLeetcode\UnitTestLeetcode.csproj", "{14FB30F8-2F98-48AB-8D3F-897F9057BB2F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,10 +45,6 @@ Global
 		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14FB30F8-2F98-48AB-8D3F-897F9057BB2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14FB30F8-2F98-48AB-8D3F-897F9057BB2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14FB30F8-2F98-48AB-8D3F-897F9057BB2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{14FB30F8-2F98-48AB-8D3F-897F9057BB2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,7 +57,6 @@ Global
 		{47587125-1656-4AFC-B4CE-F9C083B8F836} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 		{F288129D-7EDE-4F45-BC25-05456B85E515} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 		{DF1FBCD2-3F6F-48F4-B67E-69548992266B} = {F288129D-7EDE-4F45-BC25-05456B85E515}
-		{14FB30F8-2F98-48AB-8D3F-897F9057BB2F} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EFA28B29-A1A6-4F01-88DA-3ABAD9117FEE}

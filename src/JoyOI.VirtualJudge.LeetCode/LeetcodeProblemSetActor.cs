@@ -72,8 +72,11 @@ namespace JoyOI.VirtualJudge.LeetCode
                 stat_status_pairs = new List<LeetcodeProblemWrapper> { new LeetcodeProblemWrapper() }
             };
             var result = JsonConvert.DeserializeAnonymousType(jsonStr, def);
-            result.stat_status_pairs
-                .Where(x => )
+            return result.stat_status_pairs
+                .Where(x => !x.paid_only)
+                .Select(x => x.stat)
+                .Select(x => x.question__title_slug)
+                .ToArray();
         }
 
     }
