@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JoyOI.VirtualJudge.LeetCode
+namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
     class LeetcodeProblemSetActor
     {
