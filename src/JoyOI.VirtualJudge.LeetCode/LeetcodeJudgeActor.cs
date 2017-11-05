@@ -7,7 +7,7 @@ using System.Net.Http;
 using System;
 using System.Text;
 
-namespace JoyOI.VirtualJudge.LeetCode
+namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
     public class VirtualJudgeMetadata
     {
