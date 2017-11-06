@@ -29,9 +29,9 @@ namespace JoyOI.VirtualJudge.StateMachine
             {
                 case "Start":
                     await SetStageAsync("Start");
-                    goto case "FetchingAccount";
-                case "FetchingAccount":
-                    await SetStageAsync("FetchingAccount");
+                    goto case "FetchingAccountAndSendRequest";
+                case "FetchingAccountAndSendRequest":
+                    await SetStageAsync("FetchingAccountAndSendRequest");
                     var result = await HttpInvokeAsync(HttpMethod.Post, "/management/virtualjudge/requestaccount", new { id = this.Id });
                     var response = JsonConvert.DeserializeObject<dynamic>(result);
                     if (response.code != 200)
@@ -39,8 +39,6 @@ namespace JoyOI.VirtualJudge.StateMachine
                         throw new Exception($"The online judge api responsed error { response.code } \r\n{ response.msg }");
                     }
                     var accountFileId = await UploadJsonFileAsync("account.json", new { Username = response.data.username, Password = response.data.password });
-                    goto case "SendRequest";
-                case "SendRequest":
                     if (metadata.Source == "Bzoj")
                     {
                         await DeployAndRunActorAsync(new RunActorParam("BzojJudgeActor",
@@ -51,7 +49,7 @@ namespace JoyOI.VirtualJudge.StateMachine
                     {
                         throw new NotSupportedException(metadata.Source);
                     }
-                    break;
+                    goto case "Finally";
                 case "Finally":
                     await SetStageAsync("Finally");
                     await HttpInvokeAsync(HttpMethod.Post, "/management/judge/stagechange/" + this.Id, null);
