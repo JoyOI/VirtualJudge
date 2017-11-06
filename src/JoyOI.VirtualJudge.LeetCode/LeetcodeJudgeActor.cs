@@ -233,18 +233,18 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                     var successStatuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
                     {
                         Result = ACCEPTED
-                    }, totalCorrect).ToArray();
+                    }, totalCorrect).ToList();
                     int totalFailed = testcases - totalCorrect;
-                    var failedStatuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
+                    var statuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
                     {
                         Result = pollRes.Result
-                    }, totalFailed).ToArray();
+                    }, totalFailed).ToList();
                     if (totalFailed != 0)
                     {
-                        failedStatuses.First().Hint = pollRes.Hint;
+                        statuses.First().Hint = pollRes.Hint;
                     }
-                    var totalSubStatuses = failedStatuses.Concat(successStatuses);
-                    pollRes.SubStatuses = totalSubStatuses;
+                    statuses.AddRange(successStatuses);
+                    pollRes.SubStatuses = statuses;
                 }
             }
             return pollRes;
