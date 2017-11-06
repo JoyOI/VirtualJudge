@@ -18,7 +18,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         private static HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
         private static Regex dataRegex = new Regex("var pageData =(?:(?!</script>)[\\s\\S])*");
         private static Regex bodyRegex = new Regex(@"(?<=<div class=""question-description"">)[\\s\\S]*(?=</div>[\\s\\S]*?<!-- Interview Feedback -->)");
-        private static Regex titleRegex = new Regex(@"(?<=<title>)[a-zA-Z0-9_- ]{1,}(?= - LeetCode</title>)");
+        private static Regex titleRegex = new Regex(@"(?<=<title>).*(?= - LeetCode</title>)");
 
         public static void Main()
         {
