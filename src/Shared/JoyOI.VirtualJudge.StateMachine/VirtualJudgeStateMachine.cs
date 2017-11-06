@@ -45,6 +45,12 @@ namespace JoyOI.VirtualJudge.StateMachine
                             InitialBlobs.FindSingleBlob("metadata.json"), 
                             new BlobInfo(accountFileId, "account.json")));
                     }
+                    else if (metadata.Source == "LeetCode")
+                    {
+                        await DeployAndRunActorAsync(new RunActorParam("LeetCodeJudgeActor",
+                            InitialBlobs.FindSingleBlob("metadata.json"),
+                            new BlobInfo(accountFileId, "account.json")));
+                    }
                     else
                     {
                         throw new NotSupportedException(metadata.Source);

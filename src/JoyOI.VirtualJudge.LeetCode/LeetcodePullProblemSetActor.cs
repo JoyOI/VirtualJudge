@@ -9,20 +9,20 @@ using System.Threading.Tasks;
 
 namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
-    class LeetcodePullProblemSetActor
+    class LeetCodePullProblemSetActor
     {
 
-        private class LeetcodeProblemPointer
+        private class LeetCodeProblemPointer
         {
             // private string question__title { get; set; }
             public string question__title_slug { get; set; }
             // private int question_id { get; set; }
         }
 
-        private class LeetcodeProblemWrapper
+        private class LeetCodeProblemWrapper
         {
            public bool paid_only { get; set; }
-           public LeetcodeProblemPointer stat { get; set; }
+           public LeetCodeProblemPointer stat { get; set; }
         }
 
         private const string baseUrl = "https://leetcode.com";
@@ -69,7 +69,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             var response = await client.GetAsync(allProblems);
             var jsonStr = await response.Content.ReadAsStringAsync();
             var def = new {
-                stat_status_pairs = new List<LeetcodeProblemWrapper> { new LeetcodeProblemWrapper() }
+                stat_status_pairs = new List<LeetCodeProblemWrapper> { new LeetCodeProblemWrapper() }
             };
             var result = JsonConvert.DeserializeAnonymousType(jsonStr, def);
             return result.stat_status_pairs

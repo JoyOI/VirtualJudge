@@ -38,7 +38,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         public int submission_id { get; set; }
     }
 
-    class LeetcodeJudgeActor
+    class LeetCodeJudgeActor
     {
         private const string baseUrl = "https://leetcode.com";
         private const string loginEndpoint = "/accounts/login/";
