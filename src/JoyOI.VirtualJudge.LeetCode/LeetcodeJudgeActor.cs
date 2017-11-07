@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System;
 using System.Text;
+using System.Linq;
 
 namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
@@ -29,8 +30,21 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         public long TimeUsedInMs { get; set; }
         public long MemoryUsedInByte { get; set; }
         public string Hint { get; set; }
-        public int Passed { get; set; }
-        public int Total { get; set; }
+
+        public IEnumerable<VirtualJudgeSubStatus> SubStatuses { get; set; }
+    }
+
+    public class VirtualJudgeSubStatus
+    {
+        public string SubId { get; set; }
+
+        public string Result { get; set; }
+
+        public long TimeUsedInMs { get; set; }
+
+        public long MemoryUsedInByte { get; set; }
+
+        public string Hint { get; set; }
     }
 
     class SubmissionResult
@@ -167,43 +181,70 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 status_code = 0,
                 last_testcase = "",
                 total_correct = 0,
-                total_testcases = 0
+                total_testcases = 0,
+                runtime_error = ""
             };
             var resJson = await checkRes.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeAnonymousType(resJson, resDef);
             if (result.state == "SUCCESS")
             {
+                int totalCorrect = result.total_correct;
+                int testcases = result.total_testcases;
+                const string ACCEPTED = "Accepted";
                 pollRes.Result = result.status_msg;
-                pollRes.Passed = result.total_correct;
-                pollRes.Total = result.total_testcases;
                 if (!result.run_success)
                 {
                     pollRes.Result = result.status_msg;
                     switch (result.status_code) {
                         case 20: // Compile Error
                             pollRes.Hint = result.compile_error;
+                            pollRes.Result = "CompileError";
                             break;
                         case 11: // Wrong Answer
                             pollRes.Hint = String.Format
                                 ("Input: {0} \n Output: {1} \n Expected:{2}",
                                 result.input, result.code_output, result.expected_output);
+                            pollRes.Result = "WrongAnswer";
                             break;
                         case 14: // Time Limit Exceeded
                             pollRes.Hint = String.Format
                                 ("Last executed input: {0}", result.last_testcase);
+                            pollRes.Result = "TimeExceeded";
+                            break;
+                        case 15: // Runtime Error
+                            pollRes.Hint = String.Format
+                                ("{0} Last test case: {1}", result.runtime_error, result.last_testcase);
+                            pollRes.Result = "RuntimeError";
                             break;
                         default: // Unknown Error
-                            if (result.status_msg == null) {
-                                pollRes.Result = "Unknown Error";
-                            }
+                            pollRes.Result = "SystemError";
+                            pollRes.Hint = result.status_msg;
                             break;
                         // TODO: more status to be discovered
                     }
                 }
                 else
                 {
-                    pollRes.Result = result.status_msg;
+                    pollRes.Result = ACCEPTED;
                     pollRes.TimeUsedInMs = Convert.ToInt64(result.display_runtime);
+                }
+                if (testcases != 0)
+                {
+                    var successStatuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
+                    {
+                        Result = ACCEPTED
+                    }, totalCorrect).ToList();
+                    int totalFailed = testcases - totalCorrect;
+                    var statuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
+                    {
+                        Result = pollRes.Result
+                    }, totalFailed).ToList();
+                    if (totalFailed != 0)
+                    {
+                        statuses.First().Hint = pollRes.Hint;
+                    }
+                    statuses.AddRange(successStatuses);
+                    pollRes.SubStatuses = statuses;
                 }
             }
             return pollRes;
