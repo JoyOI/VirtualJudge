@@ -47,12 +47,12 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         private static string statusEndpoint = "/JudgeOnline/status.php?user_id=";
         private static string ceinfoEndpoint = "/JudgeOnline/ceinfo.php?sid=";
         private static string statusListEndpoint = "/JudgeOnline/status.php?problem_id={PROBLEM_ID}&user_id=joyoivjudge1&language={LANGUAGE}&jresult=-1";
-        private const string statusRegexString = "(?<=<a href='problem.php\\?id={PROBLEM_ID}'>{PROBLEM_ID}</a><td><font color=([a-zA-Z]{1,8}|#[0-9]{6})>)[a-zA-Z_ ]{1,}(?=</font>)";
-        private const string timeUsedRegexString = "(?<=<td>)(?:(?!<td>).)*(?=<td><a target=_blank href=showsource\\.php\\?id={STATUSID}>)";
+        private const string statusRegexString = "(?<=<a href='problem.php\\?id={PROBLEM_ID}'>{PROBLEM_ID}</a><td>)(?:(?!</font>).)*";
+        private static Regex timeUsedRegex = new Regex("(?<=<td>)[0-9]{1,}(?= <font color=red>ms)|(?<=<td>)------");
         private static Regex memoryUsedRegex = new Regex("(?<=</font><td>)(?:(?!showsource.php?id=)[0-9]|------){1,}");
-        private static Regex timeUsedSubRegex = new Regex("[0-9]*");
         private static Regex statusIdRegex = new Regex("(?<=<tr align=center class='evenrow'><td>)[0-9]{1,}|(?<=<tr align=center class='oddrow'><td>)[0-9]{1,}");
         private static Regex compileErrorInformationRegex = new Regex("(?<=<pre>)([\\d\\D]*)(?=</pre>)");
+        private static Regex statusSubRegex = new Regex("(?<=>)[a-zA-Z-_& ]{3,}$");
         private static System.Net.CookieContainer container = new System.Net.CookieContainer();
         private static HttpClient client = new HttpClient(new HttpClientHandler() { CookieContainer = container }) { BaseAddress = new Uri(baseUrl) };
 
@@ -82,10 +82,11 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                 PollResult pollResult;
                 do
                 {
-                    await Task.Delay(300);
+                    await Task.Delay(400);
                     pollResult = await PollResultAsync(statusId, metadata.ProblemId);
                 }
                 while (pollResult.Result == "Pending" || pollResult.Result == "Compiling" || pollResult.Result == "Running_&_Judging");
+
                 WriteResultFile(new VirtualJudgeResult
                 {
                     Hint = pollResult.Result == "Compile_Error" ? await GetCompileErrorInformationAsync(statusId) : "",
@@ -162,16 +163,16 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         {
             var response = await client.GetAsync(statusEndpoint);
             var html = await response.Content.ReadAsStringAsync();
-            var statusRegex = new Regex(statusRegexString.Replace("{PROBLEM_ID}", problemId));
+            var statusRegex = new Regex(statusRegexString.Replace("{PROBLEM_ID}", problemId).Replace("{STATUSID}", statusId));
             var ret = new PollResult();
-            ret.Result = statusRegex.Match(html).Value;
+            ret.Result = statusSubRegex.Match(statusRegex.Match(html).Value).Value;
             if (ret.Result != "Pending")
             {
-                var timeUsedRegex = new Regex(timeUsedRegexString.Replace("{STATUSID}", statusId).Replace("{STATUS}", ret.Result));
                 try
                 {
+                    var x = timeUsedRegex.Match(html).Value;
                     ret.MemoryUsedInByte = Convert.ToInt64(memoryUsedRegex.Match(html).Value) * 1024;
-                    ret.TimeUsedInMs = Convert.ToInt64(timeUsedSubRegex.Match(timeUsedRegex.Match(html).Value).Value);
+                    ret.TimeUsedInMs = Convert.ToInt64(timeUsedRegex.Match(html).Value);
                 }
                 catch
                 {
@@ -199,7 +200,8 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         {
             var response = await client.GetAsync(ceinfoEndpoint);
             var html = await response.Content.ReadAsStringAsync();
-            return compileErrorInformationRegex.Match(html).Value;
+            var ret = compileErrorInformationRegex.Match(html).Value;
+            return ret;
         }
     }
 }
