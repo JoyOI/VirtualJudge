@@ -79,6 +79,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 Id = problemName,
                 Source = "LeetCode",
                 OriginUrl = baseUrl + problemUri,
+                Templates = templates,
                 Title = title
             };
         }
