@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+
 namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
     class LeetCodePullProblemBodyActor
@@ -17,7 +18,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         private static List<string> returnFiles = new List<string>(1) { "problem.json" };
         private static HttpClient client = new HttpClient() { BaseAddress = new Uri(baseUrl) };
         private static Regex dataRegex = new Regex("var pageData =(?:(?!</script>)[\\s\\S])*");
-        private static Regex bodyRegex = new Regex(@"(?<=<div class=""question-description"">)[\\s\\S]*(?=</div>[\\s\\S]*?<!-- Interview Feedback -->)");
+        private static Regex bodyRegex = new Regex(@"(?<=<div class=""question-description"">)[\s\S]*(?=</div>[\s\S]*?<!-- Interview Feedback -->)");
         private static Regex titleRegex = new Regex(@"(?<=<title>).*(?= - LeetCode</title>)");
 
         public static void Main()
@@ -48,12 +49,9 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                     goto main;
                 }
             }
-            finally
-            {
-                client.Dispose();
-            }
         }
-        private static async Task<Object> GetProblemBodyAsync(string problemName) {
+        private static async Task<Object> GetProblemBodyAsync(string problemName)
+        {
             var problemUri = problemEndpoint.Replace("{PROBLEM-NAME}", problemName);
             var problemRes = await client.GetAsync(problemUri);
             var problemHTML = await problemRes.Content.ReadAsStringAsync();
@@ -73,8 +71,8 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             p.WaitForExit();
             var templates = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("stdout.txt"));
             var body = bodyRegex.Match(problemHTML).Value
-                .Replace("src=\"/", "src=\"" + baseUrl + "/"); 
-            var title = bodyRegex.Match(problemHTML).Value;
+                .Replace("src=\"/", "src=\"" + baseUrl + "/");
+            var title = titleRegex.Match(problemHTML).Value;
             return new
             {
                 Body = body,
