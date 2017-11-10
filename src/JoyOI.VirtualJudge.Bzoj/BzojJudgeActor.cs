@@ -46,7 +46,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
         private const string submitEndpoint = "/JudgeOnline/submit.php";
         private static string statusEndpoint = "/JudgeOnline/status.php?user_id=";
         private static string ceinfoEndpoint = "/JudgeOnline/ceinfo.php?sid=";
-        private static string statusListEndpoint = "/JudgeOnline/status.php?problem_id={PROBLEM_ID}&user_id=joyoivjudge1&language={LANGUAGE}&jresult=-1";
+        private static string statusListEndpoint = "/JudgeOnline/status.php?problem_id={PROBLEM_ID}&user_id={USERID}&language={LANGUAGE}&jresult=-1";
         private const string statusRegexString = "(?<=<a href='problem.php\\?id={PROBLEM_ID}'>{PROBLEM_ID}</a><td>)(?:(?!</font>).)*";
         private static Regex timeUsedRegex = new Regex("(?<=<td>)[0-9]{1,}(?= <font color=red>ms)|(?<=<td>)------");
         private static Regex memoryUsedRegex = new Regex("(?<=</font><td>)(?:(?!showsource.php?id=)[0-9]|------){1,}");
@@ -73,7 +73,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             try
             {
                 await GetCookieAsync(account.username, account.password);
-                var statusId = await SubmitCodeAsync(metadata.ProblemId, metadata.Code, metadata.Language);
+                var statusId = await SubmitCodeAsync(metadata.ProblemId, metadata.Code, metadata.Language, account.username);
                 if (string.IsNullOrEmpty(statusId))
                 {
                     throw new Exception("Failed to submit user code to bzoj.");
@@ -125,7 +125,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             }));
         }
 
-        private static async Task<string> SubmitCodeAsync(string problemId, string code, string language)
+        private static async Task<string> SubmitCodeAsync(string problemId, string code, string language, string userId)
         {
             int langId = -1;
             switch (language)
@@ -154,7 +154,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             });
             var msg = new HttpRequestMessage(HttpMethod.Post, submitEndpoint) { Content = body };
             var response2 = await client.SendAsync(msg);
-            var response3 = await client.GetAsync(statusListEndpoint.Replace("{PROBLEM_ID}", problemId).Replace("{LANGUAGE}", langId.ToString()));
+            var response3 = await client.GetAsync(statusListEndpoint.Replace("{PROBLEM_ID}", problemId).Replace("{USERID}", userId).Replace("{LANGUAGE}", langId.ToString()));
             var html = await response3.Content.ReadAsStringAsync();
             return statusIdRegex.Match(html).Value;
         }
