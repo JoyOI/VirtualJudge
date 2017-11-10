@@ -8,7 +8,7 @@ using System.Net.Http;
 
 namespace JoyOI.VirtualJudge.LeetCode.StateMachine
 {
-    class LeetcodeSyncProblemStateMachine : StateMachineBase
+    class LeetCodeSyncProblemStateMachine : StateMachineBase
     {
         public override async Task RunAsync()
         {
@@ -19,17 +19,17 @@ namespace JoyOI.VirtualJudge.LeetCode.StateMachine
             {
                 case "Start":
                     await SetStageAsync("Start");
-                    await DeployAndRunActorAsync(new RunActorParam("LeetcodePullProblemSetActor"));
+                    await DeployAndRunActorAsync(new RunActorParam("LeetCodePullProblemSetActor"));
                     goto case "FetchingProblemBody";
                 case "FetchingProblemBody":
                     await SetStageAsync("FetchingProblemBody");
-                    var pullProblemSetActor = StartedActors.FindSingleActor("Start", "LeetcodePullProblemSetActor");
+                    var pullProblemSetActor = StartedActors.FindSingleActor("Start", "LeetCodePullProblemSetActor");
                     var problems = await pullProblemSetActor.FindSingleOutputBlob("problemset.json").ReadAsJsonAsync<IEnumerable<string>>(this);
                     var parameters = new List<RunActorParam>();
                     foreach (var x in problems)
                     {
                         parameters.Add(new RunActorParam(
-                            "LeetcodePullProblemBodyActor",
+                            "LeetCodePullProblemBodyActor",
                             new BlobInfo[] {
                                 new BlobInfo(
                                 await UploadTextFileAsync("id.txt", x.ToString()),

@@ -32,17 +32,23 @@ namespace JoyOI.VirtualJudge.StateMachine
                     goto case "FetchingAccountAndSendRequest";
                 case "FetchingAccountAndSendRequest":
                     await SetStageAsync("FetchingAccountAndSendRequest");
-                    var result = await HttpInvokeAsync(HttpMethod.Post, "/management/virtualjudge/requestaccount", new { id = this.Id });
+                    var result = await HttpInvokeAsync(HttpMethod.Post, "/management/virtualjudgeaccount/requestaccount", new { id = this.Id });
                     var response = JsonConvert.DeserializeObject<dynamic>(result);
                     if (response.code != 200)
                     {
                         throw new Exception($"The online judge api responsed error { response.code } \r\n{ response.msg }");
                     }
-                    var accountFileId = await UploadJsonFileAsync("account.json", new { Username = response.data.username, Password = response.data.password });
+                    var accountFileId = await UploadJsonFileAsync("account.json", new { username = response.data.username, password = response.data.password });
                     if (metadata.Source == "Bzoj")
                     {
                         await DeployAndRunActorAsync(new RunActorParam("BzojJudgeActor",
                             InitialBlobs.FindSingleBlob("metadata.json"), 
+                            new BlobInfo(accountFileId, "account.json")));
+                    }
+                    else if (metadata.Source == "LeetCode")
+                    {
+                        await DeployAndRunActorAsync(new RunActorParam("LeetCodeJudgeActor",
+                            InitialBlobs.FindSingleBlob("metadata.json"),
                             new BlobInfo(accountFileId, "account.json")));
                     }
                     else

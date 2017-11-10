@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
-    class LeetcodePullProblemBodyActor
+    class LeetCodePullProblemBodyActor
     {
         private const string baseUrl = "https://leetcode.com";
         private const string problemEndpoint = "/problems/{PROBLEM-NAME}/description/";
@@ -79,7 +79,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             {
                 Body = body,
                 Id = problemName,
-                Source = "Leetcode",
+                Source = "LeetCode",
                 OriginUrl = baseUrl + problemUri,
                 Title = title
             };
