@@ -154,7 +154,9 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             });
             var msg = new HttpRequestMessage(HttpMethod.Post, submitEndpoint) { Content = body };
             var response2 = await client.SendAsync(msg);
-            var response3 = await client.GetAsync(statusListEndpoint.Replace("{PROBLEM_ID}", problemId).Replace("{USERID}", userId).Replace("{LANGUAGE}", langId.ToString()));
+            var response3 = await client.GetAsync(statusListEndpoint.Replace("{PROBLEM_ID}", problemId)
+                .Replace("{USERID}", userId)
+                .Replace("{LANGUAGE}", langId.ToString()));
             var html = await response3.Content.ReadAsStringAsync();
             return statusIdRegex.Match(html).Value;
         }
