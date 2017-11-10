@@ -7,6 +7,7 @@ using System.Net.Http;
 using System;
 using System.Text;
 using System.Linq;
+using System.Net;
 
 namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
@@ -52,6 +53,23 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         public int submission_id { get; set; }
     }
 
+    class SubmissionStatus
+    {
+        public string state { get; set; }
+        public string status_msg { get; set; }
+        public string display_runtime { get; set; }
+        public string compile_error { get; set; }
+        public bool run_success { get; set; }
+        public string input { get; set; }
+        public string expected_output { get; set; }
+        public string code_output { get; set; }
+        public int status_code { get; set; }
+        public string last_testcase { get; set; }
+        public int? total_correct { get; set; }
+        public int? total_testcases { get; set; }
+        public string runtime_error { get; set; }
+    }
+
     class LeetCodeJudgeActor
     {
         private const string baseUrl = "https://leetcode.com";
@@ -73,7 +91,8 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             MainAsync(metadata, account).Wait();
         }
 
-        private static async Task MainAsync(VirtualJudgeMetadata metadata, VirtualJudgeAccount account) {
+        private static async Task MainAsync(VirtualJudgeMetadata metadata, VirtualJudgeAccount account)
+        {
             var retryLeftTimes = 3;
             trySubmit:
             try
@@ -88,7 +107,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 do
                 {
                     await Task.Delay(1000);
-                    pollResult = await PollResultAsync(submissionId);
+                    pollResult = await PollResultAsync(metadata.ProblemId, submissionId);
                 } while (pollResult.Result == "WAITING");
                 WriteResultFile(pollResult);
             }
@@ -118,15 +137,43 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             var logingPageRes = await client.GetAsync(loginEndpoint);
             var loginPaheHTML = await logingPageRes.Content.ReadAsStringAsync();
             var csrfToken = csrfTokenRegex.Match(loginPaheHTML).Value;
-            return await client.PostAsync(loginEndpoint, new FormUrlEncodedContent(new Dictionary<string, string>
+            var loginContent = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 { "csrfmiddlewaretoken", csrfToken },
                 { "login", username },
                 { "password", password },
                 { "remember", "" }
-            }));
+            });
+            var loginReq = new HttpRequestMessage(HttpMethod.Post, loginEndpoint)
+            {
+                Content = loginContent,
+            };
+            loginReq.Headers.Referrer = new Uri(baseUrl + loginEndpoint);
+            var result = await client.SendAsync(loginReq);
+            var resultContent = await result.Content.ReadAsStringAsync();
+            return result;
         }
-        private static async Task<int> SubmitCodeAsync(string problemName, string code, string language) {
+
+        private static void DecorateCSRFRequest(HttpRequestMessage req, string problemName, string reqUri)
+        {
+            var problemUri = problemEndpoint.Replace("{PROBLEM-NAME}", problemName);
+            IEnumerable<Cookie> responseCookies = container.GetCookies(new Uri(baseUrl)).Cast<Cookie>();
+            req.Headers.Referrer = new Uri(baseUrl + problemUri);
+            req.Headers.TryAddWithoutValidation(Uri.EscapeDataString(":authority"), "leetcode.com");
+            req.Headers.TryAddWithoutValidation(Uri.EscapeDataString(":method"), "POST");
+            req.Headers.TryAddWithoutValidation(Uri.EscapeDataString(":path"), reqUri);
+            req.Headers.TryAddWithoutValidation(Uri.EscapeDataString(":scheme"), "https");
+            req.Headers.TryAddWithoutValidation("origin", "https://leetcode.com");
+            req.Headers.TryAddWithoutValidation("x-requested-with", "XMLHttpRequest");
+            req.Headers.TryAddWithoutValidation("x-csrftoken",
+                responseCookies
+                .Where(c => c.Name == "csrftoken")
+                .FirstOrDefault()
+                .Value);
+        }
+
+        private static async Task<int> SubmitCodeAsync(string problemName, string code, string language)
+        {
             var lang = language.ToLower();
             switch (language) // leave it as switch to extent in the future
             {
@@ -137,7 +184,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             var problemUri = problemEndpoint.Replace("{PROBLEM-NAME}", problemName);
             var problemRes = await client.GetAsync(problemUri);
             var problemHTML = await problemRes.Content.ReadAsStringAsync();
-            var problemId = questionId.Match(problemHTML);
+            var problemId = questionId.Match(problemHTML).Value;
             var submitUri = submitEndpoint.Replace("{PROBLEM-NAME}", problemName);
             var submitParams = new
             {
@@ -148,17 +195,24 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 test_mode = false,
                 typed_code = code,
             };
-            var submitRes = await client.PostAsync(submitUri, new StringContent(
+            var submitReq = new HttpRequestMessage(HttpMethod.Post, submitUri)
+            {
+                Content = new StringContent(
                 JsonConvert.SerializeObject(submitParams),
-                Encoding.UTF8, "application/json"));
+                Encoding.UTF8, "application/json")
+            };
+            DecorateCSRFRequest(submitReq, problemName, submitUri);
+            var submitRes = await client.SendAsync(submitReq);
             var submissionJson = await submitRes.Content.ReadAsStringAsync();
             var submissionResult = JsonConvert.DeserializeObject<SubmissionResult>(submissionJson);
             return submissionResult.submission_id;
         }
 
-        private static async Task<VirtualJudgeResult> PollResultAsync(int submissionId) {
+        private static async Task<VirtualJudgeResult> PollResultAsync(string problemName, int submissionId)
+        {
             var checkUri = checkEndpoint.Replace("{SUBMISSION-ID}", submissionId.ToString());
-            await Task.Delay(1000);
+            var checkReq = new HttpRequestMessage(HttpMethod.Get, checkUri);
+            DecorateCSRFRequest(checkReq, problemName, checkUri);
             var checkRes = await client.GetAsync(checkUri);
             var pollRes = new VirtualJudgeResult
             {
@@ -168,34 +222,19 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             {
                 return pollRes;
             }
-            var resDef = new
-            {
-                state = "",
-                status_msg = "",
-                display_runtime = "",
-                compile_error = "",
-                run_success = false,
-                input = "",
-                expected_output = "",
-                code_output = "",
-                status_code = 0,
-                last_testcase = "",
-                total_correct = 0,
-                total_testcases = 0,
-                runtime_error = ""
-            };
             var resJson = await checkRes.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeAnonymousType(resJson, resDef);
+            var result = JsonConvert.DeserializeObject<SubmissionStatus>(resJson);
             if (result.state == "SUCCESS")
             {
-                int totalCorrect = result.total_correct;
-                int testcases = result.total_testcases;
+                int totalCorrect = result.total_correct.GetValueOrDefault(0);
+                int testcases = result.total_testcases.GetValueOrDefault(0);
                 const string ACCEPTED = "Accepted";
                 pollRes.Result = result.status_msg;
                 if (!result.run_success)
                 {
                     pollRes.Result = result.status_msg;
-                    switch (result.status_code) {
+                    switch (result.status_code)
+                    {
                         case 20: // Compile Error
                             pollRes.Hint = result.compile_error;
                             pollRes.Result = "CompileError";
@@ -220,7 +259,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                             pollRes.Result = "SystemError";
                             pollRes.Hint = result.status_msg;
                             break;
-                        // TODO: more status to be discovered
+                            // TODO: more status to be discovered
                     }
                 }
                 else
