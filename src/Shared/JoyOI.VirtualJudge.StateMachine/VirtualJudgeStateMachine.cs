@@ -23,7 +23,7 @@ namespace JoyOI.VirtualJudge.StateMachine
         public override async Task RunAsync()
         {
             Limitation.EnableNetwork = true;
-            Limitation.ExecutionTimeout = 60000;
+            Limitation.ExecutionTimeout = 180000;
             var metadata = await InitialBlobs.FindSingleBlob("metadata.json").ReadAsJsonAsync<VirtualJudgeMetadata>(this);
 
             switch (Stage)
