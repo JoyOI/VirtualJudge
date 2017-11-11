@@ -81,6 +81,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 Source = "LeetCode",
                 OriginUrl = baseUrl + problemUri,
                 Templates = templates,
+                TemplatesError = File.ReadAllText("stderr.txt"),
                 Title = title
             };
         }
