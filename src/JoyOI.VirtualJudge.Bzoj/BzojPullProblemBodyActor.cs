@@ -49,10 +49,6 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                     goto main;
                 }
             }
-            finally
-            {
-                client.Dispose();
-            }
         }
 
         private static async Task<object> GetProblemBodyAsync(int problemId)
