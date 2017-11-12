@@ -25,13 +25,13 @@ namespace Deploy
             client.PatchStateMachineDefinitionAsync("LeetCodeSyncProblemStateMachine", File.ReadAllText(@"C:\Users\Yuko\Documents\GitHub\VirtualJudge\src\JoyOI.VirtualJudge.LeetCode\LeetCodeSyncProblemStateMachine.cs"), null).Wait();
 
 
-            /* Trigger Pulling BZOJ */
-            //var stateMachineId1 = client.PutStateMachineInstanceAsync("BzojSyncProblemStateMachine", "http://api.oj.joyoi.cn").Result;
-            //Console.WriteLine(stateMachineId1);
+            ///* Trigger Pulling BZOJ */
+            //var stateMachineId = client.PutStateMachineInstanceAsync("BzojSyncProblemStateMachine", "http://api.oj.joyoi.net").Result;
+            //Console.WriteLine(stateMachineId);
 
-            /* Trigger Pulling LeetCode */
-            var stateMachineId2 = client.PutStateMachineInstanceAsync("LeetCodeSyncProblemStateMachine", "http://api.oj.joyoi.cn").Result;
-            Console.WriteLine(stateMachineId2);
+            ///* Trigger Pulling LeetCode */
+            //var stateMachineId = client.PutStateMachineInstanceAsync("LeetCodeSyncProblemStateMachine", "http://api.oj.joyoi.net").Result;
+            //Console.WriteLine(stateMachineId);
 
             Console.Read();
         }
