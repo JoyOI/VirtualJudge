@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-`
 namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
     class LeetCodePullProblemBodyActor
