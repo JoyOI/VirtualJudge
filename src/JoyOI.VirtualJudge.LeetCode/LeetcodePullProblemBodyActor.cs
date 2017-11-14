@@ -84,7 +84,8 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 throw new Exception(
                     "Body extraction runner failed with exit code: " +
                     templateStatus.ExitCode +
-                    ", stdout: " + templateStatus.Error);
+                    ", stderr: " + 
+                    templateStatus.Error);
             }
             return new
             {
