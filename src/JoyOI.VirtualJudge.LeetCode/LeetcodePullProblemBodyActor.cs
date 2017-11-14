@@ -8,11 +8,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-
+`
 namespace JoyOI.VirtualJudge.LeetCode.Actor
 {
     class LeetCodePullProblemBodyActor
     {
+
+        private class RunnerResult {
+            public int ExitCode { get; set; }
+            public string Error { get; set; }
+        }
+
         private const string baseUrl = "https://leetcode.com";
         private const string problemEndpoint = "/problems/{PROBLEM-NAME}/description/";
         private static List<string> returnFiles = new List<string>(1) { "problem.json" };
@@ -71,17 +77,23 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             p.StandardInput.WriteLine(String.Format("node {0}", jsFile));
             p.WaitForExit();
             var templates = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("stdout.txt"));
+            var templateStatus = JsonConvert.DeserializeObject<RunnerResult>(File.ReadAllText("runner.json"));
             var body = bodyRegex.Match(problemHTML).Value
                 .Replace("src=\"/", "src=\"" + baseUrl + "/");
             var title = titleRegex.Match(problemHTML).Value;
+            if (templateStatus.ExitCode != 0) {
+                throw new Exception(
+                    "Body extraction runner failed with exit code: " +
+                    templateStatus.ExitCode +
+                    ", stdout: " + templateStatus.Error);
+            }
             return new
             {
                 Body = body,
                 Id = problemName,
                 Source = "LeetCode",
                 OriginUrl = baseUrl + problemUri,
-                Templates = templates,
-                TemplatesError = File.ReadAllText("stderr.txt"),
+                CodeTemplate = templates,
                 Title = title
             };
         }
