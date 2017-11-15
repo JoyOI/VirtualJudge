@@ -43,7 +43,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             catch (Exception ex)
             {
                 --retryLeftTimes;
-                if (retryLeftTimes <= 0)
+                if (retryLeftTimes <= 0 || !(ex is HttpRequestException))
                 {
                     File.WriteAllText("error.txt", ex.ToString());
                     File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = new[] { "error.txt" } }));
