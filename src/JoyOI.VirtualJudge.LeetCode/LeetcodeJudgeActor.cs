@@ -274,7 +274,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                         .Select(c => {
                             return new VirtualJudgeSubStatus
                             {
-                                Result = (c == '1') ? ACCEPTED : pollRes.Result,
+                                Result = (c == '1' ? ACCEPTED : pollRes.Result),
                                 Hint = (c == '0' ? "LeetCode 仅支持查看最后一个错误信息" : null)
                             };
                         })
