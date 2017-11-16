@@ -45,8 +45,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 --retryLeftTimes;
                 if (retryLeftTimes <= 0)
                 {
-                    File.WriteAllText("error.txt", ex.ToString());
-                    File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = new[] { "error.txt" } }));
+                    throw;
                 }
                 else
                 {
