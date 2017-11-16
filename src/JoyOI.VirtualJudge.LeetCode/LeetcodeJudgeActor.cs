@@ -297,7 +297,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                     pollRes.SubStatuses = subStatuses;
                 }
             }
-            if (pollRes.SubStatuses != null || pollRes.SubStatuses.Count() != 0)
+            if (pollRes.SubStatuses != null && pollRes.SubStatuses.Count() != 0)
             {
                 pollRes.Hint = null;
             }
