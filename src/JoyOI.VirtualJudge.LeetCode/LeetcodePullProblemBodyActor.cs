@@ -40,7 +40,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 File.WriteAllText("problem.json", JsonConvert.SerializeObject(await GetProblemBodyAsync(problemName)));
                 File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = returnFiles }));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 --retryLeftTimes;
                 if (retryLeftTimes <= 0)
@@ -49,14 +49,13 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 }
                 else
                 {
-                    await Task.Delay(3000);
+                    await Task.Delay(1000);
                     goto main;
                 }
             }
         }
         private static async Task<Object> GetProblemBodyAsync(string problemName)
         {
-
             var problemUri = problemEndpoint.Replace("{PROBLEM-NAME}", problemName);
             var problemRes = await client.GetAsync(problemUri);
             var problemHTML = await problemRes.Content.ReadAsStringAsync();
