@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JoyOI.ManagementService.SDK" Version="1.0.0-alpha-10041" />
+    <PackageReference Include="JoyOI.ManagementService.SDK" Version="1.0.0-alpha-10080" />
   </ItemGroup>
 
   <ItemGroup>
