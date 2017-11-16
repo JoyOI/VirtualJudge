@@ -209,7 +209,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             var submissionJson = await submitRes.Content.ReadAsStringAsync();
             if (!submitRes.IsSuccessStatusCode)
             {
-                throw new Exception(String.Format("Failed to send code to LeetCode server: {0} - {1}", submitRes.StatusCode, submissionJson));
+                throw new Exception(String.Format("Failed to send code to LeetCode server for lang {2}: {0} - {1}", submitRes.StatusCode, submissionJson, lang));
             }
             var submissionResult = JsonConvert.DeserializeObject<SubmissionResult>(submissionJson);
             return submissionResult.submission_id;
