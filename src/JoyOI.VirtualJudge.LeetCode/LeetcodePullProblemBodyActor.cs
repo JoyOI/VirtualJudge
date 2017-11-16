@@ -44,7 +44,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             catch (Exception)
             {
                 --retryLeftTimes;
-                if (retryLeftTimes <= 0 || !(ex is HttpRequestException))
+                if (retryLeftTimes <= 0)
                 {
                     throw;
                 }
