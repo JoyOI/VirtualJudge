@@ -175,12 +175,12 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         private static async Task<int> SubmitCodeAsync(string problemName, string code, string language)
         {
             var lang = language.ToLower();
-            switch (language) // leave it as switch to extent in the future
+            switch (language.Trim()) // leave it as switch to extent in the future
             {
-                case "c++":
+                case "C++":
                     lang = "cpp";
                     break;
-                case "c#":
+                case "C#":
                     lang = "csharp";
                     break;
             }
