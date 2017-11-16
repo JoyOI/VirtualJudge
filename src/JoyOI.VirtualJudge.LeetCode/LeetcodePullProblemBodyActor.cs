@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -40,24 +41,22 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 File.WriteAllText("problem.json", JsonConvert.SerializeObject(await GetProblemBodyAsync(problemName)));
                 File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = returnFiles }));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 --retryLeftTimes;
                 if (retryLeftTimes <= 0 || !(ex is HttpRequestException))
                 {
-                    File.WriteAllText("error.txt", ex.ToString());
-                    File.WriteAllText("return.json", JsonConvert.SerializeObject(new { Outputs = new[] { "error.txt" } }));
+                    throw;
                 }
                 else
                 {
-                    await Task.Delay(3000);
+                    await Task.Delay(1000);
                     goto main;
                 }
             }
         }
         private static async Task<Object> GetProblemBodyAsync(string problemName)
         {
-
             var problemUri = problemEndpoint.Replace("{PROBLEM-NAME}", problemName);
             var problemRes = await client.GetAsync(problemUri);
             var problemHTML = await problemRes.Content.ReadAsStringAsync();
@@ -72,8 +71,8 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                   console.log(JSON.stringify(ret)); ");
             File.WriteAllText(jsFile, execJs);
             var p = Process.Start(new ProcessStartInfo("runner") { RedirectStandardInput = true });
-            p.StandardInput.WriteLine("10000 10000");
-            p.StandardInput.WriteLine(String.Format("node --stack_size=1024 --max_old_space_size=256 {0}", jsFile));
+            p.StandardInput.WriteLine("10000 10000 0");
+            p.StandardInput.WriteLine(String.Format("node --stack_size=256 --max_old_space_size=256 {0}", jsFile));
             p.WaitForExit();
             var templates = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("stdout.txt"));
             var templateStatus = JsonConvert.DeserializeObject<RunnerResult>(File.ReadAllText("runner.json"));
@@ -87,9 +86,10 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                     ", stderr: " + 
                     templateStatus.Error);
             }
+
             return new
             {
-                Body = body,
+                Body = string.Join("\n", body.Split('\n').Select(x => x.Trim())),
                 Id = problemName,
                 Source = "LeetCode",
                 OriginUrl = baseUrl + problemUri,
