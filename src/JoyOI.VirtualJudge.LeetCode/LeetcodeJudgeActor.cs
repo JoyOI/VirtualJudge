@@ -69,6 +69,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         public int? total_testcases { get; set; }
         public string runtime_error { get; set; }
         public string status_runtime { get; set; }
+        public string compare_result { get; set; }
     }
 
     class LeetCodeJudgeActor
@@ -268,21 +269,31 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 }
                 if (testcases != 0)
                 {
-                    var successStatuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
+                    var subStatuses = result.compare_result
+                        .ToCharArray()
+                        .Select(c => {
+                            return new VirtualJudgeSubStatus
+                            {
+                                Result = (c == '1') ? ACCEPTED : pollRes.Result
+                            };
+                        })
+                        .ToArray();
+                    var failureIndex = 0;
+                    var totalFailed = result.total_testcases - totalCorrect;
+                    for (int i = 0; i < subStatuses.Count(); i++)
                     {
-                        Result = ACCEPTED
-                    }, totalCorrect).ToList();
-                    int totalFailed = testcases - totalCorrect;
-                    var statuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
-                    {
-                        Result = pollRes.Result
-                    }, totalFailed).ToList();
-                    if (totalFailed != 0)
-                    {
-                        statuses.First().Hint = pollRes.Hint;
+                        var status = subStatuses[i];
+                        status.SubId = i.ToString();
+                        if (status.Result != ACCEPTED)
+                        {
+                            failureIndex++;
+                            if (failureIndex == totalFailed)
+                            {
+                                status.Hint = pollRes.Hint;
+                            }
+                        }
                     }
-                    statuses.AddRange(successStatuses);
-                    pollRes.SubStatuses = statuses;
+                    pollRes.SubStatuses = subStatuses;
                 }
             }
             return pollRes;
