@@ -12,7 +12,7 @@ namespace JoyOI.VirtualJudge.CodeVS
     public static class CodeVSPullProblemSetActor
     {
         private const string BaseUrl = "http://codevs.cn";
-        private const string ProblemListEndpoint = "http://codevs.cn/problem/?problemset_id=1&page={PAGE}";
+        private const string ProblemListEndpoint = "/problem/?problemset_id=1&page={PAGE}";
         private static Regex PageNumberRegex = new Regex("(?<=/problem/\\?problemset_id=1&page=)[0-9]{1,3}");
         private static Regex ProblemIdRegex = new Regex("(?<=/problem/)[0-9]{4,6}");
         private static HttpClient client = new HttpClient()
