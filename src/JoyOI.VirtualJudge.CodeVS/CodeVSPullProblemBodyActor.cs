@@ -40,7 +40,7 @@ namespace JoyOI.VirtualJudge.CodeVS
             using (var response = await client.GetAsync(ProblemEndpoint.Replace("{PROBLEMID}", id.ToString())))
             {
                 var html = await response.Content.ReadAsStringAsync();
-                var body = BodyRegex.Match(html).Value.Replace(HeaderReplaceFrom, HeaderReplaceTo);
+                var body = BodyRegex.Match(html).Value.Replace(HeaderReplaceFrom, HeaderReplaceTo).Replace("<img src=\"/", "<img src=\"http://codevs.cn/").Trim('\n').Trim();
                 var title = TitleRegex.Match(html).Value.Substring(id.ToString().Length + 1).Trim();
                 var time = Convert.ToInt32(TimeRegex.Match(html).Value) * 1000;
                 var memory = Convert.ToInt32(MemoryRegex.Match(html).Value) * 1024;
