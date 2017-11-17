@@ -176,13 +176,13 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
 
         private static async Task<int> SubmitCodeAsync(string problemName, string code, string language)
         {
-            var lang = language.ToLower();
-            switch (language.Trim()) // leave it as switch to extent in the future
+            var lang = language.ToLower().Trim();
+            switch (lang) // leave it as switch to extent in the future
             {
-                case "C++":
+                case "c++":
                     lang = "cpp";
                     break;
-                case "C#":
+                case "c#":
                     lang = "csharp";
                     break;
             }
@@ -274,7 +274,8 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                         .Select(c => {
                             return new VirtualJudgeSubStatus
                             {
-                                Result = (c == '1') ? ACCEPTED : pollRes.Result
+                                Result = (c == '1' ? ACCEPTED : pollRes.Result),
+                                Hint = (c == '0' ? "LeetCode 仅支持查看最后一个错误信息" : null)
                             };
                         })
                         .ToArray();
@@ -295,6 +296,10 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                     }
                     pollRes.SubStatuses = subStatuses;
                 }
+            }
+            if (pollRes.SubStatuses != null && pollRes.SubStatuses.Count() != 0)
+            {
+                pollRes.Hint = null;
             }
             return pollRes;
         }
