@@ -143,6 +143,7 @@ namespace JoyOI.VirtualJudge.CodeVS
                 var result = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
                 if (result.status == "等待测试 Pending")
                 {
+                    await Task.Delay(1000);
                     goto main;
                 }
 
