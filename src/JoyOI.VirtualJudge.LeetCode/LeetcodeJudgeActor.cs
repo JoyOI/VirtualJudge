@@ -68,6 +68,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         public int? total_correct { get; set; }
         public int? total_testcases { get; set; }
         public string runtime_error { get; set; }
+        public string status_runtime { get; set; }
     }
 
     class LeetCodeJudgeActor
@@ -247,19 +248,15 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                             pollRes.Result = "CompileError";
                             break;
                         case 11: // Wrong Answer
-                            pollRes.Hint = String.Format
-                                ("Input: {0} \n Output: {1} \n Expected:{2}",
-                                result.input, result.code_output, result.expected_output);
+                            pollRes.Hint = $"Input: {result.input} \n Output: {result.code_output} \n Expected:{result.expected_output}";
                             pollRes.Result = "WrongAnswer";
                             break;
                         case 14: // Time Limit Exceeded
-                            pollRes.Hint = String.Format
-                                ("Last executed input: {0}", result.last_testcase);
+                            pollRes.Hint = $"Last executed input: {result.last_testcase}";
                             pollRes.Result = "TimeExceeded";
                             break;
                         case 15: // Runtime Error
-                            pollRes.Hint = String.Format
-                                ("{0} Last test case: {1}", result.runtime_error, result.last_testcase);
+                            pollRes.Hint = $"{result.runtime_error} Last test case: {result.last_testcase}";
                             pollRes.Result = "RuntimeError";
                             break;
                         default: // Unknown Error
@@ -272,7 +269,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 else
                 {
                     pollRes.Result = ACCEPTED;
-                    pollRes.TimeUsedInMs = Convert.ToInt64(result.display_runtime);
+                    pollRes.TimeUsedInMs = Convert.ToInt64(result.status_runtime.Replace(" ms", ""));
                 }
                 if (testcases != 0)
                 {
