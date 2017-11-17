@@ -2,14 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text;
-using System.Reflection;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
 namespace JoyOI.VirtualJudge.CodeVS
@@ -49,6 +45,21 @@ namespace JoyOI.VirtualJudge.CodeVS
         public long MemoryUsedInByte { get; set; }
 
         public string Hint { get; set; }
+    }
+
+    public class ResultPoll
+    {
+        public string status { get; set; }
+        public int submission_id { get; set; }
+        public string outputname { get; set; }
+        public int memory_cost { get; set; }
+
+        public int time_cost { get; set; }
+        public string inputname { get; set; }
+        public string input { get; set; }
+        public string rightoutput { get; set; }
+        public string useroutput { get; set; }
+        public string results { get; set; }
     }
 
     public static class CodeVSJudgeActor
@@ -152,7 +163,8 @@ namespace JoyOI.VirtualJudge.CodeVS
             main:
             using (var response = await _client.GetAsync(ResultEndpoint.Replace("{STATUSID}", statusId.ToString())))
             {
-                var result = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
+                var text = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<ResultPoll>(text);
                 if (result.status == "等待测试 Pending")
                 {
                     await Task.Delay(1000);
@@ -160,7 +172,7 @@ namespace JoyOI.VirtualJudge.CodeVS
                 }
 
                 var totalResult = ResultRegex.Match((string)result.status).Value.Trim().Replace("Limit", "").Replace(" ", "");
-                IEnumerable<VirtualJudgeSubStatus> subStatuses = await ParseSubStatuses(result.results);
+                IEnumerable<VirtualJudgeSubStatus> subStatuses = ParseSubStatuses(result.results);
                 if (totalResult == "WrongAnswer")
                     subStatuses.Single(x => x.SubId == FindHintId(result)).Hint = $"{ result.input } \n\n { result.useroutput } \n\n { result.rightoutput }";
 
@@ -170,7 +182,7 @@ namespace JoyOI.VirtualJudge.CodeVS
                     TimeUsedInMs = result.time_cost,
                     Result = totalResult,
                     SubStatuses = ParseSubStatuses(result.results),
-                    Hint = totalResult == "CompileError" ? result.reuslts : ""
+                    Hint = totalResult == "CompileError" ? result.results : ""
                 };
             }
         }
@@ -211,7 +223,7 @@ namespace JoyOI.VirtualJudge.CodeVS
             }
         }
 
-        private static string FindHintId(dynamic result)
+        private static int FindHintId(ResultPoll result)
         {
             var id = Convert.ToInt32(InputIdRegex.Match(result.inputname).Value);
             return id;
