@@ -103,7 +103,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
                     WriteResultFile(new VirtualJudgeResult
                     {
                         Hint = ex.ToString(),
-                        Result = "System Error",
+                        Result = "SystemError",
                         MemoryUsedInByte = 0,
                         TimeUsedInMs = 0
                     });
@@ -188,7 +188,7 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             var ret = bzojResult.Replace("_", " ").Replace(" Limit", "");
             if (ret.EndsWith("Exceed"))
                 ret += "ed";
-            return ret;
+            return ret.Replace(" ", "");
         }
 
         private static void WriteResultFile(VirtualJudgeResult result)
