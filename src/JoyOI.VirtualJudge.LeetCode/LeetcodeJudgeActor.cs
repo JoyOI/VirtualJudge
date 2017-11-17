@@ -69,6 +69,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         public int? total_testcases { get; set; }
         public string runtime_error { get; set; }
         public string status_runtime { get; set; }
+        public string compare_result { get; set; }
     }
 
     class LeetCodeJudgeActor
@@ -238,56 +239,61 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                 int testcases = result.total_testcases.GetValueOrDefault(0);
                 const string ACCEPTED = "Accepted";
                 pollRes.Result = result.status_msg;
-                if (!result.run_success)
+                switch (result.status_code)
                 {
-                    pollRes.Result = result.status_msg;
-                    switch (result.status_code)
-                    {
-                        case 20: // Compile Error
-                            pollRes.Hint = result.compile_error;
-                            pollRes.Result = "CompileError";
-                            break;
-                        case 11: // Wrong Answer
-                            pollRes.Hint = $"Input: {result.input} \n Output: {result.code_output} \n Expected:{result.expected_output}";
-                            pollRes.Result = "WrongAnswer";
-                            break;
-                        case 14: // Time Limit Exceeded
-                            pollRes.Hint = $"Last executed input: {result.last_testcase}";
-                            pollRes.Result = "TimeExceeded";
-                            break;
-                        case 15: // Runtime Error
-                            pollRes.Hint = $"{result.runtime_error} Last test case: {result.last_testcase}";
-                            pollRes.Result = "RuntimeError";
-                            break;
-                        default: // Unknown Error
-                            pollRes.Result = "SystemError";
-                            pollRes.Hint = result.status_msg;
-                            break;
-                            // TODO: more status to be discovered
-                    }
-                }
-                else
-                {
-                    pollRes.Result = ACCEPTED;
-                    pollRes.TimeUsedInMs = Convert.ToInt64(result.status_runtime.Replace(" ms", ""));
+                    case 10: // Suuccess
+                        pollRes.Result = ACCEPTED;
+                        pollRes.TimeUsedInMs = Convert.ToInt64(result.status_runtime.Replace(" ms", ""));
+                        break;
+                    case 20: // Compile Error
+                        pollRes.Hint = result.compile_error;
+                        pollRes.Result = "CompileError";
+                        break;
+                    case 11: // Wrong Answer
+                        pollRes.Hint = $"Input: {result.input} \n Output: {result.code_output} \n Expected:{result.expected_output}";
+                        pollRes.Result = "WrongAnswer";
+                        break;
+                    case 14: // Time Limit Exceeded
+                        pollRes.Hint = $"Last executed input: {result.last_testcase}";
+                        pollRes.Result = "TimeExceeded";
+                        break;
+                    case 15: // Runtime Error
+                        pollRes.Hint = $"{result.runtime_error} Last test case: {result.last_testcase}";
+                        pollRes.Result = "RuntimeError";
+                        break;
+                    default: // Unknown Error
+                        pollRes.Result = "SystemError";
+                        pollRes.Hint = result.status_msg;
+                        break;
+                        // TODO: more status to be discovered
                 }
                 if (testcases != 0)
                 {
-                    var successStatuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
+                    var subStatuses = result.compare_result
+                        .ToCharArray()
+                        .Select(c => {
+                            return new VirtualJudgeSubStatus
+                            {
+                                Result = (c == '1') ? ACCEPTED : pollRes.Result
+                            };
+                        })
+                        .ToArray();
+                    var failureIndex = 0;
+                    var totalFailed = result.total_testcases - totalCorrect;
+                    for (int i = 0; i < subStatuses.Count(); i++)
                     {
-                        Result = ACCEPTED
-                    }, totalCorrect).ToList();
-                    int totalFailed = testcases - totalCorrect;
-                    var statuses = Enumerable.Repeat<VirtualJudgeSubStatus>(new VirtualJudgeSubStatus
-                    {
-                        Result = pollRes.Result
-                    }, totalFailed).ToList();
-                    if (totalFailed != 0)
-                    {
-                        statuses.First().Hint = pollRes.Hint;
+                        var status = subStatuses[i];
+                        status.SubId = i.ToString();
+                        if (status.Result != ACCEPTED)
+                        {
+                            failureIndex++;
+                            if (failureIndex == totalFailed)
+                            {
+                                status.Hint = pollRes.Hint;
+                            }
+                        }
                     }
-                    statuses.AddRange(successStatuses);
-                    pollRes.SubStatuses = statuses;
+                    pollRes.SubStatuses = subStatuses;
                 }
             }
             return pollRes;
