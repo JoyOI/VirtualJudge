@@ -86,6 +86,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                     ", stderr: " + 
                     templateStatus.Error);
             }
+
             return new
             {
                 Body = string.Join("\n", body.Split('\n').Select(x => x.Trim())),

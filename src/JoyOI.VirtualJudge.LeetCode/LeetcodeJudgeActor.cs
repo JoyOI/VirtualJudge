@@ -175,10 +175,13 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
         private static async Task<int> SubmitCodeAsync(string problemName, string code, string language)
         {
             var lang = language.ToLower();
-            switch (language) // leave it as switch to extent in the future
+            switch (language.Trim()) // leave it as switch to extent in the future
             {
                 case "C++":
                     lang = "cpp";
+                    break;
+                case "C#":
+                    lang = "csharp";
                     break;
             }
             var problemUri = problemEndpoint.Replace("{PROBLEM-NAME}", problemName);
@@ -204,6 +207,10 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             DecorateCSRFRequest(submitReq, problemName, submitUri);
             var submitRes = await client.SendAsync(submitReq);
             var submissionJson = await submitRes.Content.ReadAsStringAsync();
+            if (!submitRes.IsSuccessStatusCode)
+            {
+                throw new Exception(String.Format("Failed to send code to LeetCode server for lang {2}: {0} - {1}", submitRes.StatusCode, submissionJson, lang));
+            }
             var submissionResult = JsonConvert.DeserializeObject<SubmissionResult>(submissionJson);
             return submissionResult.submission_id;
         }
