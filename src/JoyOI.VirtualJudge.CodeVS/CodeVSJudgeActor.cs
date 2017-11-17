@@ -151,10 +151,20 @@ namespace JoyOI.VirtualJudge.CodeVS
             req.Headers.TryAddWithoutValidation("X-Requested-With", "XMLHttpRequest");
             req.Headers.TryAddWithoutValidation("Host", "codevs.cn");
             req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
-            using (var response = await _client.SendAsync(req))
+
+            send:
+            try
             {
-                var text = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<dynamic>(text).id;
+                using (var response = await _client.SendAsync(req))
+                {
+                    var text = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<dynamic>(text).id;
+                }
+            }
+            catch
+            {
+                await Task.Delay(1000);
+                goto send;
             }
         }
 
