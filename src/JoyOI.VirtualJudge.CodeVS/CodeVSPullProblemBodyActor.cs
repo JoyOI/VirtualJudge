@@ -23,7 +23,7 @@ namespace JoyOI.VirtualJudge.CodeVS
 
         private const string BaseUrl = "http://codevs.cn";
         private const string ProblemEndpoint = "/problem/{PROBLEMID}";
-        private const string HeaderReplaceFrom = "class=\"panel panel-default\"";
+        private const string HeaderReplaceFrom = "class=\"panel-heading font-bold\"";
         private const string HeaderReplaceTo = "class=\"area-title\"";
         private static HttpClient client = new HttpClient() { BaseAddress = new Uri(BaseUrl) };
         private static Regex BodyRegex = new Regex("(?<=<div class=\"col-lg-9 no-padder \">)[\\s\\S]*(?=<div class=\"m-b-xxl\">)");

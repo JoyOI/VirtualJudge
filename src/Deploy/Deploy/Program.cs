@@ -13,6 +13,7 @@ namespace Deploy
             /* Judge Related */
             client.PatchActorAsync("BzojJudgeActor", File.ReadAllText(@"C:\Users\Yuko\Documents\GitHub\VirtualJudge\src\JoyOI.VirtualJudge.Bzoj\BzojJudgeActor.cs")).Wait();
             client.PatchActorAsync("LeetCodeJudgeActor", File.ReadAllText(@"C:\Users\Yuko\Documents\GitHub\VirtualJudge\src\JoyOI.VirtualJudge.LeetCode\LeetCodeJudgeActor.cs")).Wait();
+            client.PatchActorAsync("CodeVSJudgeActor", File.ReadAllText(@"C:\Users\Yuko\Documents\GitHub\VirtualJudge\src\JoyOI.VirtualJudge.CodeVS\CodeVSJudgeActor.cs")).Wait();
             client.PatchStateMachineDefinitionAsync("VirtualJudgeStateMachine", File.ReadAllText(@"C:\Users\Yuko\Documents\GitHub\VirtualJudge\src\Shared\JoyOI.VirtualJudge.StateMachine\VirtualJudgeStateMachine.cs"), null).Wait();
 
             /* Problem Related */
@@ -37,8 +38,8 @@ namespace Deploy
             //Console.WriteLine(stateMachineId);
 
             ///* Trigger Pulling CodeVS */
-            var stateMachineId = client.PutStateMachineInstanceAsync("CodeVSSyncProblemStateMachine", "http://api.oj.joyoi.cn", null, 3).Result;
-            Console.WriteLine(stateMachineId);
+            //var stateMachineId = client.PutStateMachineInstanceAsync("CodeVSSyncProblemStateMachine", "http://api.oj.joyoi.cn", null, 3).Result;
+            //Console.WriteLine(stateMachineId);
 
             Console.Read();
         }
