@@ -122,13 +122,21 @@ namespace JoyOI.VirtualJudge.CodeVS
 
         private static async Task<int> SendToJudge(VirtualJudgeMetadata metadata, string csrf)
         {
-            using (var response = await _client.PostAsync(JudgeEndpoint, new StringContent(JsonConvert.SerializeObject(new
+            var problemPageUri = ProblemEndpoint.Replace("{PROBLEMID}", metadata.problemId);
+            var content = new StringContent(JsonConvert.SerializeObject(new
             {
                 id = metadata.ProblemId,
                 code = metadata.Code,
                 format = metadata.Language == "C++" ? "cpp" : metadata.Language.ToLower(),
                 csrfmiddlewaretoken = csrf
-            }), Encoding.UTF8, "application/json")))
+            }),
+            Encoding.UTF8, "application/json");
+            var req = new HttpRequestMessage(HttpMethod.Post, JudgeEndpoint)
+            {
+                Content = content,
+            };
+            req.Headers.Referrer = new Uri(baseUrl + problemPageUri);
+            using (var response = await _client.SendAsync(req))
             {
                 var text = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<dynamic>(text).id;
