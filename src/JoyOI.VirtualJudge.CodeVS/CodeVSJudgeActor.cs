@@ -122,13 +122,25 @@ namespace JoyOI.VirtualJudge.CodeVS
 
         private static async Task<int> SendToJudge(VirtualJudgeMetadata metadata, string csrf)
         {
-            using (var response = await _client.PostAsync(JudgeEndpoint, new StringContent(JsonConvert.SerializeObject(new
+            var problemPageUri = ProblemEndpoint.Replace("{PROBLEMID}", metadata.ProblemId);
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                id = metadata.ProblemId,
-                code = metadata.Code,
-                format = metadata.Language == "C++" ? "cpp" : metadata.Language.ToLower(),
-                csrfmiddlewaretoken = csrf
-            }), Encoding.UTF8, "application/json")))
+                { "id", metadata.ProblemId },
+                { "code", metadata.Code },
+                { "format", metadata.Language == "C++" ? "cpp" : metadata.Language.ToLower() },
+                { "csrfmiddlewaretoken", csrf }
+            });
+            var req = new HttpRequestMessage(HttpMethod.Post, JudgeEndpoint)
+            {
+                Content = content,
+            };
+            // the following headers are just for redundant in case of future changes
+            // it's not necessary, for now
+            req.Headers.TryAddWithoutValidation("Referer", BaseUrl + problemPageUri + "/");
+            req.Headers.TryAddWithoutValidation("X-Requested-With", "XMLHttpRequest");
+            req.Headers.TryAddWithoutValidation("Host", "codevs.cn");
+            req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
+            using (var response = await _client.SendAsync(req))
             {
                 var text = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<dynamic>(text).id;
