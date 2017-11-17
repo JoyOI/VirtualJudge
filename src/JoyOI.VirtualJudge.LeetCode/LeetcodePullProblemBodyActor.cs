@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -70,8 +71,8 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                   console.log(JSON.stringify(ret)); ");
             File.WriteAllText(jsFile, execJs);
             var p = Process.Start(new ProcessStartInfo("runner") { RedirectStandardInput = true });
-            p.StandardInput.WriteLine("10000 10000 -1");
-            p.StandardInput.WriteLine(String.Format("node {0}", jsFile));
+            p.StandardInput.WriteLine("10000 10000 0");
+            p.StandardInput.WriteLine(String.Format("node --stack_size=256 --max_old_space_size=256 {0}", jsFile));
             p.WaitForExit();
             var templates = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("stdout.txt"));
             var templateStatus = JsonConvert.DeserializeObject<RunnerResult>(File.ReadAllText("runner.json"));
@@ -87,7 +88,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
             }
             return new
             {
-                Body = body,
+                Body = string.Join("\n", body.Split('\n').Select(x => x.Trim())),
                 Id = problemName,
                 Source = "LeetCode",
                 OriginUrl = baseUrl + problemUri,
