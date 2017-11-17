@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27019.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoyOI.VirtualJudge.Common", "src\Shared\JoyOI.VirtualJudge.Common\JoyOI.VirtualJudge.Common.csproj", "{7A118DF2-6EA2-4A4C-B62F-2B1BA027E6AC}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{F288129D-7EDE-4F45-BC25-05456B85E515}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deploy", "src\Deploy\Deploy\Deploy.csproj", "{DF1FBCD2-3F6F-48F4-B67E-69548992266B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoyOI.VirtualJudge.CodeVS", "src\JoyOI.VirtualJudge.CodeVS\JoyOI.VirtualJudge.CodeVS.csproj", "{B1607028-6016-4F24-93E1-40C0E3852343}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF1FBCD2-3F6F-48F4-B67E-69548992266B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1607028-6016-4F24-93E1-40C0E3852343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1607028-6016-4F24-93E1-40C0E3852343}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1607028-6016-4F24-93E1-40C0E3852343}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1607028-6016-4F24-93E1-40C0E3852343}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +63,7 @@ Global
 		{47587125-1656-4AFC-B4CE-F9C083B8F836} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 		{F288129D-7EDE-4F45-BC25-05456B85E515} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 		{DF1FBCD2-3F6F-48F4-B67E-69548992266B} = {F288129D-7EDE-4F45-BC25-05456B85E515}
+		{B1607028-6016-4F24-93E1-40C0E3852343} = {EAE226E3-5BEC-43F6-87E8-0BE1CCB612D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EFA28B29-A1A6-4F01-88DA-3ABAD9117FEE}

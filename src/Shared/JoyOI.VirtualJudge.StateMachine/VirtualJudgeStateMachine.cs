@@ -52,6 +52,12 @@ namespace JoyOI.VirtualJudge.StateMachine
                             InitialBlobs.FindSingleBlob("metadata.json"),
                             new BlobInfo(accountFileId, "account.json")));
                     }
+                    else if (metadata.Source == "CodeVS")
+                    {
+                        await DeployAndRunActorAsync(new RunActorParam("CodeVSJudgeActor",
+                            InitialBlobs.FindSingleBlob("metadata.json"),
+                            new BlobInfo(accountFileId, "account.json")));
+                    }
                     else
                     {
                         throw new NotSupportedException(metadata.Source);

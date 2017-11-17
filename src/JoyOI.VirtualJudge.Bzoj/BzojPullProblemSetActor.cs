@@ -64,14 +64,16 @@ namespace JoyOI.VirtualJudge.Bzoj.Actor
             findMaxPage:
             try
             {
-                var response = await client.GetAsync(problemsetEndpoint.Replace("{PAGE}", "1"));
-                var html = await response.Content.ReadAsStringAsync();
-                var ret = new List<int>(100);
-                foreach (Match x in PageIndexRegex.Matches(html))
+                using (var response = await client.GetAsync(problemsetEndpoint.Replace("{PAGE}", "1")))
                 {
-                    ret.Add(int.Parse(x.Value));
+                    var html = await response.Content.ReadAsStringAsync();
+                    var ret = new List<int>(100);
+                    foreach (Match x in PageIndexRegex.Matches(html))
+                    {
+                        ret.Add(int.Parse(x.Value));
+                    }
+                    return ret.Max();
                 }
-                return ret.Max();
             }
             catch
             {

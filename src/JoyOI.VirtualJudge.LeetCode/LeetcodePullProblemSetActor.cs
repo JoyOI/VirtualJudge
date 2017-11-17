@@ -66,18 +66,20 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
 
         private static async Task<IEnumerable<string>> FindProblemsAsync()
         {
-            var response = await client.GetAsync(allProblems);
-            var jsonStr = await response.Content.ReadAsStringAsync();
-            var def = new {
-                stat_status_pairs = new List<LeetCodeProblemWrapper> { new LeetCodeProblemWrapper() }
-            };
-            var result = JsonConvert.DeserializeAnonymousType(jsonStr, def);
-            return result.stat_status_pairs
-                .Where(x => !x.paid_only)
-                .Select(x => x.stat)
-                .Select(x => x.question__title_slug)
-                .ToArray();
+            using (var response = await client.GetAsync(allProblems))
+            {
+                var jsonStr = await response.Content.ReadAsStringAsync();
+                var def = new
+                {
+                    stat_status_pairs = new List<LeetCodeProblemWrapper> { new LeetCodeProblemWrapper() }
+                };
+                var result = JsonConvert.DeserializeAnonymousType(jsonStr, def);
+                return result.stat_status_pairs
+                    .Where(x => !x.paid_only)
+                    .Select(x => x.stat)
+                    .Select(x => x.question__title_slug)
+                    .ToArray();
+            }
         }
-
     }
 }
