@@ -37,7 +37,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
 
     public class VirtualJudgeSubStatus
     {
-        public string SubId { get; set; }
+        public int SubId { get; set; }
 
         public string Result { get; set; }
 
@@ -250,7 +250,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                         pollRes.Result = "CompileError";
                         break;
                     case 11: // Wrong Answer
-                        pollRes.Hint = $"Input: {result.input} \n Output: {result.code_output} \n Expected:{result.expected_output}";
+                        pollRes.Hint = $"Input: \n```\n{result.input}\n``` \n\n Output: \n```\n{result.code_output}\n``` \n\n Expected:{result.expected_output}";
                         pollRes.Result = "WrongAnswer";
                         break;
                     case 14: // Time Limit Exceeded
@@ -283,7 +283,7 @@ namespace JoyOI.VirtualJudge.LeetCode.Actor
                     for (int i = 0; i < subStatuses.Count(); i++)
                     {
                         var status = subStatuses[i];
-                        status.SubId = i.ToString();
+                        status.SubId = i + 1;
                         if (status.Result != ACCEPTED)
                         {
                             failureIndex++;
