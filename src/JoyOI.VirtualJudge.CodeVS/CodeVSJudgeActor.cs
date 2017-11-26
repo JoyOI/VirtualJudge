@@ -95,8 +95,19 @@ namespace JoyOI.VirtualJudge.CodeVS
             await GetCredantial(token);
             var csrf = await GetCsrfToken(metadata.ProblemId);
             var statusId = await SendToJudge(metadata, csrf);
-            var result = await PollResult(statusId);
-            WriteResultFile(result);
+            if (statusId.Item1 == -1)
+            {
+                WriteResultFile(new VirtualJudgeResult
+                {
+                    Hint = statusId.Item2,
+                    Result = "CompileError"
+                });
+            }
+            else
+            {
+                var result = await PollResult(statusId.Item1);
+                WriteResultFile(result);
+            }
         }
 
         private static async Task<string> GetOnlineJudgeLoginToken(VirtualJudgeAccount account)
@@ -131,14 +142,29 @@ namespace JoyOI.VirtualJudge.CodeVS
             }
         }
 
-        private static async Task<int> SendToJudge(VirtualJudgeMetadata metadata, string csrf)
+        private static string ParseLanguage(string lang)
+        {
+            switch (lang)
+            {
+                case "C":
+                    return "c";
+                case "C++":
+                    return "cpp";
+                case "Pascal":
+                    return "pas";
+                default:
+                    throw new NotSupportedException(lang + "has not been supported in this problem source");
+            }
+        }
+
+        private static async Task<(int, string)> SendToJudge(VirtualJudgeMetadata metadata, string csrf)
         {
             var problemPageUri = ProblemEndpoint.Replace("{PROBLEMID}", metadata.ProblemId);
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 { "id", metadata.ProblemId },
                 { "code", metadata.Code },
-                { "format", metadata.Language == "C++" ? "cpp" : metadata.Language.ToLower() },
+                { "format", ParseLanguage(metadata.Language) },
                 { "csrfmiddlewaretoken", csrf }
             });
             var req = new HttpRequestMessage(HttpMethod.Post, JudgeEndpoint)
@@ -158,10 +184,18 @@ namespace JoyOI.VirtualJudge.CodeVS
                 using (var response = await _client.SendAsync(req))
                 {
                     var text = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<dynamic>(text).id;
+                    var json = JsonConvert.DeserializeObject<dynamic>(text);
+                    if (json.success == false)
+                    {
+                        return (-1, json.message);
+                    }
+                    else
+                    {
+                        return (json.id, null);
+                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 await Task.Delay(1000);
                 goto send;
