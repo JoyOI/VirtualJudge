@@ -2,14 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text;
-using System.Reflection;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
 namespace JoyOI.VirtualJudge.CodeVS
@@ -51,6 +47,21 @@ namespace JoyOI.VirtualJudge.CodeVS
         public string Hint { get; set; }
     }
 
+    public class ResultPoll
+    {
+        public string status { get; set; }
+        public int submission_id { get; set; }
+        public string outputname { get; set; }
+        public int memory_cost { get; set; }
+
+        public int time_cost { get; set; }
+        public string inputname { get; set; }
+        public string input { get; set; }
+        public string rightoutput { get; set; }
+        public string useroutput { get; set; }
+        public string results { get; set; }
+    }
+
     public static class CodeVSJudgeActor
     {
         private const string BaseUrl = "http://codevs.cn";
@@ -84,8 +95,19 @@ namespace JoyOI.VirtualJudge.CodeVS
             await GetCredantial(token);
             var csrf = await GetCsrfToken(metadata.ProblemId);
             var statusId = await SendToJudge(metadata, csrf);
-            var result = await PollResult(statusId);
-            WriteResultFile(result);
+            if (statusId.Item1 == -1)
+            {
+                WriteResultFile(new VirtualJudgeResult
+                {
+                    Hint = statusId.Item2,
+                    Result = "CompileError"
+                });
+            }
+            else
+            {
+                var result = await PollResult(statusId.Item1);
+                WriteResultFile(result);
+            }
         }
 
         private static async Task<string> GetOnlineJudgeLoginToken(VirtualJudgeAccount account)
@@ -120,14 +142,29 @@ namespace JoyOI.VirtualJudge.CodeVS
             }
         }
 
-        private static async Task<int> SendToJudge(VirtualJudgeMetadata metadata, string csrf)
+        private static string ParseLanguage(string lang)
+        {
+            switch (lang)
+            {
+                case "C":
+                    return "c";
+                case "C++":
+                    return "cpp";
+                case "Pascal":
+                    return "pas";
+                default:
+                    throw new NotSupportedException(lang + "has not been supported in this problem source");
+            }
+        }
+
+        private static async Task<(int, string)> SendToJudge(VirtualJudgeMetadata metadata, string csrf)
         {
             var problemPageUri = ProblemEndpoint.Replace("{PROBLEMID}", metadata.ProblemId);
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 { "id", metadata.ProblemId },
                 { "code", metadata.Code },
-                { "format", metadata.Language == "C++" ? "cpp" : metadata.Language.ToLower() },
+                { "format", ParseLanguage(metadata.Language) },
                 { "csrfmiddlewaretoken", csrf }
             });
             var req = new HttpRequestMessage(HttpMethod.Post, JudgeEndpoint)
@@ -140,10 +177,28 @@ namespace JoyOI.VirtualJudge.CodeVS
             req.Headers.TryAddWithoutValidation("X-Requested-With", "XMLHttpRequest");
             req.Headers.TryAddWithoutValidation("Host", "codevs.cn");
             req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
-            using (var response = await _client.SendAsync(req))
+
+            send:
+            try
             {
-                var text = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<dynamic>(text).id;
+                using (var response = await _client.SendAsync(req))
+                {
+                    var text = await response.Content.ReadAsStringAsync();
+                    var json = JsonConvert.DeserializeObject<dynamic>(text);
+                    if (json.success == false)
+                    {
+                        return (-1, json.message);
+                    }
+                    else
+                    {
+                        return (json.id, null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Task.Delay(1000);
+                goto send;
             }
         }
 
@@ -152,7 +207,8 @@ namespace JoyOI.VirtualJudge.CodeVS
             main:
             using (var response = await _client.GetAsync(ResultEndpoint.Replace("{STATUSID}", statusId.ToString())))
             {
-                var result = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
+                var text = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<ResultPoll>(text);
                 if (result.status == "等待测试 Pending")
                 {
                     await Task.Delay(1000);
@@ -160,7 +216,7 @@ namespace JoyOI.VirtualJudge.CodeVS
                 }
 
                 var totalResult = ResultRegex.Match((string)result.status).Value.Trim().Replace("Limit", "").Replace(" ", "");
-                IEnumerable<VirtualJudgeSubStatus> subStatuses = await ParseSubStatuses(result.results);
+                IEnumerable<VirtualJudgeSubStatus> subStatuses = ParseSubStatuses(result.results);
                 if (totalResult == "WrongAnswer")
                     subStatuses.Single(x => x.SubId == FindHintId(result)).Hint = $"{ result.input } \n\n { result.useroutput } \n\n { result.rightoutput }";
 
@@ -170,7 +226,7 @@ namespace JoyOI.VirtualJudge.CodeVS
                     TimeUsedInMs = result.time_cost,
                     Result = totalResult,
                     SubStatuses = ParseSubStatuses(result.results),
-                    Hint = totalResult == "CompileError" ? result.reuslts : ""
+                    Hint = totalResult == "CompileError" ? result.results : ""
                 };
             }
         }
@@ -211,7 +267,7 @@ namespace JoyOI.VirtualJudge.CodeVS
             }
         }
 
-        private static string FindHintId(dynamic result)
+        private static int FindHintId(ResultPoll result)
         {
             var id = Convert.ToInt32(InputIdRegex.Match(result.inputname).Value);
             return id;
