@@ -208,7 +208,6 @@ namespace JoyOI.VirtualJudge.CodeVS
             using (var response = await _client.GetAsync(ResultEndpoint.Replace("{STATUSID}", statusId.ToString())))
             {
                 var text = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(text);
                 var result = JsonConvert.DeserializeObject<ResultPoll>(text);
                 if (result.status == "等待测试 Pending")
                 {
