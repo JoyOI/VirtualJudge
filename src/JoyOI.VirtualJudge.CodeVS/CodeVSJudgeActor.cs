@@ -57,8 +57,8 @@ namespace JoyOI.VirtualJudge.CodeVS
         public int time_cost { get; set; }
         public string inputname { get; set; }
         public string input { get; set; }
-        public string rightoutput { get; set; }
-        public string useroutput { get; set; }
+        public IEnumerable<String> rightoutput { get; set; }
+        public IEnumerable<String> useroutput { get; set; }
         public string results { get; set; }
     }
 
@@ -153,7 +153,7 @@ namespace JoyOI.VirtualJudge.CodeVS
                 case "Pascal":
                     return "pas";
                 default:
-                    throw new NotSupportedException(lang + "has not been supported in this problem source");
+                    throw new NotSupportedException(lang + " has not been supported in this problem source");
             }
         }
 
@@ -218,7 +218,10 @@ namespace JoyOI.VirtualJudge.CodeVS
                 var totalResult = ResultRegex.Match((string)result.status).Value.Trim().Replace("Limit", "").Replace(" ", "");
                 IEnumerable<VirtualJudgeSubStatus> subStatuses = ParseSubStatuses(result.results);
                 if (totalResult == "WrongAnswer")
-                    subStatuses.Single(x => x.SubId == FindHintId(result)).Hint = $"{ result.input } \n\n { result.useroutput } \n\n { result.rightoutput }";
+                    subStatuses.Single(x => x.SubId == FindHintId(result)).Hint =
+                        $"{ result.input } \n\n " +
+                        $"{ result.useroutput.Last() } \n\n " +
+                        $"{ result.rightoutput.Last() }";
 
                 return new VirtualJudgeResult
                 {
